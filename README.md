@@ -18,9 +18,9 @@ If you find that building does not work with the included batch file after downl
 
 ## Credits
 
-After some hefty optimization efforts on V1, I realized my code was way too bad so the way I reached the levels of optimization that V2 now has was to take inspiration from Zenith-MIDI. I clearly don't know what I'm doing to the fullest extent so this was required.
+#### Testing: Piano Arts 2007
 
-#### Resources used from Zenith-MIDI:
+#### Resources used from Zenith-MIDI (because I suck at optimization):
 
 [BufferByteReader.cs](https://github.com/arduano/Zenith-MIDI/blob/master/BMEngine/BufferByteReader.cs)
 
