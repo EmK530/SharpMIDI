@@ -16,6 +16,8 @@ This was programmed with .NET 6.0.
 
 If you find that building does not work with the included batch file after downloading the SDK then you can try downloading the same version that this application was programmed with, 6.0.400.
 
+If issues still persist, create an issue so I can look deeper as I am not sure if I uploaded everything required for building.
+
 ## Credits
 
 #### Testing: Piano Arts 2007
