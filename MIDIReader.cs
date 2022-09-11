@@ -22,7 +22,8 @@ namespace SharpMIDI
             Console.WriteLine("Searching for tracks...");
             while (midiStream.Position < midiStream.Length)
             {
-                IndexTrack();
+                bool success = IndexTrack();
+                if(!success){Console.WriteLine("Track scan ended early due to header issue, MIDI might be inaccurate!");break;}
             }
             Console.WriteLine("Found "+trackCount+" tracks.");
             MIDIPlayer.SubmitTrackCount(trackCount);
@@ -48,34 +49,45 @@ namespace SharpMIDI
         }
         static uint VerifyHeader()
         {
-            FindText("MThd");
-            uint size = ReadInt32();
-            uint fmt = ReadInt16();
-            Seek(2);
-            uint ppq = ReadInt16();
-            if(size!=6){throw new Exception("Incorrect header size of "+size);}
-            if(fmt==2){throw new Exception("MIDI format 2 unsupported");}
-            if(ppq<0){throw new Exception("PPQ is negative");}
-            return ppq;
+            bool success = FindText("MThd");
+            if(success){
+                uint size = ReadInt32();
+                uint fmt = ReadInt16();
+                Seek(2);
+                uint ppq = ReadInt16();
+                if(size!=6){throw new Exception("Incorrect header size of "+size);}
+                if(fmt==2){throw new Exception("MIDI format 2 unsupported");}
+                if(ppq<0){throw new Exception("PPQ is negative");}
+                return ppq;
+            } else {
+                throw new Exception("Header issue");
+            }
         }
-        static void IndexTrack()
+        static bool IndexTrack()
         {
-            FindText("MTrk");
-            uint size = ReadInt32();
-            trackLocations.Add(midiStream.Position);
-            trackSizes.Add(size);
-            midiStream.Position += size;
-            trackCount++;
+            bool success = FindText("MTrk");
+            if(success){
+                uint size = ReadInt32();
+                trackLocations.Add(midiStream.Position);
+                trackSizes.Add(size);
+                midiStream.Position += size;
+                trackCount++;
+                return true;
+            } else {
+                return false;
+            }
         }
-        static void FindText(string text)
+        static bool FindText(string text)
         {
             foreach (char l in text)
             {
                 if(midiStream.ReadByte() != l)
                 {
-                    throw new Exception("Header issue");
+                    Console.WriteLine("Header issue");
+                    return false;
                 }
             }
+            return true;
         }
         static uint ReadInt32()
         {
