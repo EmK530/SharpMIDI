@@ -36,6 +36,10 @@ namespace SharpMIDI
                     totalDelay = 0;
                 }
                 double delay = tick()-start;
+                if(delay > 0.1){
+                    Console.WriteLine("Cannot keep up! Fell "+(delay-0.1)+" seconds behind.");
+                    delay = 0.1;
+                }
                 totalDelay+=delay;
                 start=tick();
                 clock+=(delay)/ticklen;
