@@ -27,10 +27,11 @@ namespace SharpMIDI
     public unsafe class MidiTrack : IDisposable
     {
         public List<SynthEvent> synthEvents = new List<SynthEvent>();
+        public List<int[]> skippedNotes = new List<int[]>();
         public long eventAmount = 0;
         public long tempoAmount = 0;
         public List<Tempo> tempos = new List<Tempo>();
-        public long trackTime = 0;
+        public double trackTime = 0;
         public long noteCount = 0;
         BufferByteReader stupid;
         public MidiTrack(BufferByteReader reader)
@@ -38,8 +39,12 @@ namespace SharpMIDI
             stupid=reader;
         }
         byte prevEvent = 0;
-        public void ParseTrackEvents(bool runGC)
+        public void ParseTrackEvents(bool runGC, byte thres)
         {
+            for(int i = 0; i < 16; i++)
+            {
+                skippedNotes.Add(new int[256]);
+            }
             trackTime = 0;
             while(true)
             {
@@ -63,18 +68,33 @@ namespace SharpMIDI
                                 byte ch = (byte)(readEvent & 0b00001111);
                                 byte note = stupid.Read();
                                 byte vel = stupid.ReadFast();
-                                byte customEvent = readEvent;
-                                if(vel == 0){
-                                    customEvent-=0b00010000;
+                                if(vel!=0){
+                                    if(vel >= thres)
+                                    {
+                                        noteCount++;
+                                        eventAmount++;
+                                        synthEvents.Add(new SynthEvent()
+                                        {
+                                            pos = time,
+                                            val = readEvent | (note << 8) | (vel << 16)
+                                        });
+                                    } else {
+                                        skippedNotes[ch][note]++;
+                                    }
                                 } else {
-                                    noteCount++;
+                                    if(skippedNotes[ch][note] == 0)
+                                    {
+                                        byte customEvent = (byte)(readEvent-0b00010000);
+                                        eventAmount++;
+                                        synthEvents.Add(new SynthEvent()
+                                        {
+                                            pos = time,
+                                            val = customEvent | (note << 8) | (vel << 16)
+                                        });
+                                    } else {
+                                        skippedNotes[ch][note]--;
+                                    }
                                 }
-                                eventAmount++;
-                                synthEvents.Add(new SynthEvent()
-                                {
-                                    pos = time,
-                                    val = customEvent | (note << 8) | (vel << 16)
-                                });
                             }
                             break;
                         case 0b10000000:
@@ -82,12 +102,17 @@ namespace SharpMIDI
                                 int ch = readEvent & 0b00001111;
                                 byte note = stupid.Read();
                                 byte vel = stupid.ReadFast();
-                                eventAmount++;
-                                synthEvents.Add(new SynthEvent()
+                                if(skippedNotes[ch][note] == 0)
                                 {
-                                    pos = time,
-                                    val = readEvent | (note << 8) | (vel << 16)
-                                });
+                                    eventAmount++;
+                                    synthEvents.Add(new SynthEvent()
+                                    {
+                                        pos = time,
+                                        val = readEvent | (note << 8) | (vel << 16)
+                                    });
+                                } else {
+                                    skippedNotes[ch][note]--;
+                                }
                             }
                             break;
                         case 0b10100000:
