@@ -1,4 +1,4 @@
-﻿namespace SharpMIDI
+namespace SharpMIDI
 {
     class UserInput
     {
@@ -28,7 +28,21 @@
                     if(File.Exists(PathInput)){break;}else{Console.WriteLine("File does not exist");}
                 }
             }
-            MIDIReader.LoadPath(PathInput);
+            byte Threshold = 0;
+            while(true){
+                Console.Write("Pick note threshold (0-127): ");
+                string? temp = Console.ReadLine();
+                if(temp == null){Console.WriteLine("\nInvalid input of null");}else{
+                    if (int.TryParse(temp, System.Globalization.NumberStyles.HexNumber, null, out int i))
+                    {
+                        Threshold = (byte)i;
+                        break;
+                    } else {
+                        Console.WriteLine("\nCould not parse input");
+                    }
+                }
+            }
+            MIDIReader.LoadPath(PathInput,Threshold);
         }
     }
 }
