@@ -15,7 +15,7 @@ namespace SharpMIDI
         private static Stream midiStream;
         private static ushort trackCount = 0;
         private static long noteCount = 0;
-        public static void LoadPath(string path){
+        public static void LoadPath(string path, byte thres){
             midiStream = new StreamReader(path).BaseStream;
             Console.WriteLine("Verifying header...");
             uint ppq = VerifyHeader();
@@ -33,7 +33,7 @@ namespace SharpMIDI
                 {
                     MidiTrack temp = new MidiTrack(new BufferByteReader(midiStream,10000,trackLocations[i],trackSizes[i]));
                     Console.WriteLine("Track "+(i+1)+" / "+trackCount+" | Size "+trackSizes[i]);
-                    temp.ParseTrackEvents(true);
+                    temp.ParseTrackEvents(true, thres);
                     noteCount+=temp.noteCount;
                     temp.Dispose();
                     MIDIPlayer.SubmitTrackForPlayback(i,temp);
