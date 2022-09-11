@@ -2,7 +2,7 @@ namespace SharpMIDI
 {
     class UserInput
     {
-        private static string version = "v2.1.0";
+        private static string version = "v2.1.2";
         static void Main(string[] args)
         {
             #if DEBUG
