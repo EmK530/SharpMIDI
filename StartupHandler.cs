@@ -23,7 +23,6 @@ namespace SharpMIDI
                 PathInput = Console.ReadLine();
                 if(PathInput == null){Console.WriteLine("\nInvalid input of null");}else{
                     PathInput=PathInput.Replace("& '".ToString(), String.Empty);
-                    PathInput=PathInput.Replace("'".ToString(), String.Empty);
                     PathInput=PathInput.Replace('"'.ToString(), String.Empty);
                     if(File.Exists(PathInput)){break;}else{Console.WriteLine("File does not exist");}
                 }
