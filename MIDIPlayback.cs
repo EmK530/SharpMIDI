@@ -53,10 +53,13 @@ namespace SharpMIDI
                             Tempo ev = i.tempos[tempoProgress[loops]];
                             evs++;
                             if(ev.pos <= clock){
+                                double lastbpm = bpm;
                                 bpm=60000000/(double)ev.tempo;
                                 ticklen=(1/(double)ppq)*(60/bpm);
                                 tempoProgress[loops]++;
-                                Console.WriteLine("Tempo event, new BPM: "+bpm);
+                                if(bpm != lastbpm){
+                                    Console.WriteLine("Tempo event, new BPM: "+bpm);
+                                }
                             } else {
                                 break;
                             }
