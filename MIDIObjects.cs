@@ -14,7 +14,7 @@ namespace SharpMIDI
 
     public struct SynthEvent
     {
-        public double pos;
+        public long pos;
         public int val;
     }
 
@@ -31,7 +31,7 @@ namespace SharpMIDI
         public long eventAmount = 0;
         public long tempoAmount = 0;
         public List<Tempo> tempos = new List<Tempo>();
-        public double trackTime = 0;
+        public long trackTime = 0;
         public long noteCount = 0;
         BufferByteReader stupid;
         public MidiTrack(BufferByteReader reader)
@@ -39,7 +39,7 @@ namespace SharpMIDI
             stupid=reader;
         }
         byte prevEvent = 0;
-        public void ParseTrackEvents(bool runGC, byte thres)
+        public void ParseTrackEvents(byte thres)
         {
             for(int i = 0; i < 16; i++)
             {
@@ -52,7 +52,7 @@ namespace SharpMIDI
                 {
                     //this is huge zenith inspiration lol, if you can't beat 'em, join 'em
                     trackTime+=ReadVariableLen();
-                    double time = trackTime;
+                    long time = trackTime;
                     byte readEvent = stupid.ReadFast();
                     if (readEvent < 0x80)
                     {
@@ -226,7 +226,6 @@ namespace SharpMIDI
                     break;
                 }
             }
-            if(runGC){GC.Collect();}
         }
         long ReadVariableLen()
         {
