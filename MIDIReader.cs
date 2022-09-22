@@ -15,6 +15,8 @@ namespace SharpMIDI
         private static Stream midiStream;
         private static ushort trackCount = 0;
         private static long noteCount = 0;
+        static uint totalSize = 0;
+        static uint gcRequirement = 33554432;
         public static void LoadPath(string path, byte thres){
             midiStream = new StreamReader(path).BaseStream;
             Console.WriteLine("Verifying header...");
@@ -33,14 +35,22 @@ namespace SharpMIDI
             {
                 {
                     MidiTrack temp = new MidiTrack(new BufferByteReader(midiStream,10000,trackLocations[i],trackSizes[i]));
-                    Console.WriteLine("Track "+(i+1)+" / "+trackCount+" | Size "+trackSizes[i]);
-                    temp.ParseTrackEvents(true, thres);
+                    Console.Write("\nTrack "+(i+1)+" / "+trackCount+" | Size "+trackSizes[i]);
+                    totalSize+=trackSizes[i];
+                    temp.ParseTrackEvents(thres);
                     noteCount+=temp.noteCount;
                     temp.Dispose();
                     MIDIPlayer.SubmitTrackForPlayback(i,temp);
+                    if(totalSize >= gcRequirement){
+                        Console.Write(" | GC Executed");
+                        totalSize = 0;
+                        Console.WriteLine("\nBefore clean: "+GC.GetTotalMemory(false));
+                        GC.Collect();
+                        Console.WriteLine("After clean: "+GC.GetTotalMemory(false));
+                    }
                 }
             };
-            Console.WriteLine("MIDI Loaded!");
+            Console.WriteLine("\nMIDI Loaded!");
             Console.WriteLine("Notes: "+noteCount);
             MIDIPlayer.StartPlayback(ppq,noteCount);
         }
