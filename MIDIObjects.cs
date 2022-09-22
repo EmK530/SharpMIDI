@@ -215,7 +215,6 @@ namespace SharpMIDI
                                     }
                                     break;
                                 default:
-                                    //Console.WriteLine("Unrecognized event: "+readEvent);
                                     break;
                             }
                             break;
