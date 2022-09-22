@@ -44,9 +44,7 @@ namespace SharpMIDI
                     if(totalSize >= gcRequirement){
                         Console.Write(" | GC Executed");
                         totalSize = 0;
-                        Console.WriteLine("\nBefore clean: "+GC.GetTotalMemory(false));
                         GC.Collect();
-                        Console.WriteLine("After clean: "+GC.GetTotalMemory(false));
                     }
                 }
             };
