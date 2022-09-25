@@ -8,8 +8,9 @@ This is a project I've mainly done to try my hands on C# and become better at it
 
 ## Requirements
 
-None!
-But if you want to go all out you can download the fast and supported synth [OmniMIDI](https://github.com/KeppySoftware/OmniMIDI/releases)
+MIDI files, of course.
+
+And if you are seeking performance then please download the synth [OmniMIDI](https://github.com/KeppySoftware/OmniMIDI/releases).
 
 ## Build Info
 
