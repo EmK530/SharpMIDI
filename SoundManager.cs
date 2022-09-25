@@ -9,7 +9,16 @@ namespace SharpMIDI
 
         public static (bool,string,string) Init()
         {
-            if(KDMAPI.IsKDMAPIAvailable()){
+            bool available = false;
+            try
+            {
+                available = KDMAPI.IsKDMAPIAvailable();
+            }
+            catch(DllNotFoundException e)
+            {
+                Console.WriteLine("Prevented DllNotFoundException from KDMAPI");
+            }
+            if(available){
                 Console.Write("KDMAPI is available! Input y to use it: ");
                 string? input = Console.ReadLine();
                 if(input != null && input.ToLower() == "y"){
