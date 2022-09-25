@@ -9,7 +9,7 @@ This is a project I've mainly done to try my hands on C# and become better at it
 ## Requirements
 
 None!
-But if you want to go all out you can download the fast and supported synth [OmniMIDI]https://github.com/KeppySoftware/OmniMIDI/releases
+But if you want to go all out you can download the fast and supported synth [OmniMIDI](https://github.com/KeppySoftware/OmniMIDI/releases)
 
 ## Build Info
 
