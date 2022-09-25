@@ -8,7 +8,8 @@ This is a project I've mainly done to try my hands on C# and become better at it
 
 ## Requirements
 
-OmniMIDI: This program only supports KDMAPI as of now.
+None!
+But if you want to go all out you can download the fast and supported synth [OmniMIDI]https://github.com/KeppySoftware/OmniMIDI/releases
 
 ## Build Info
 
