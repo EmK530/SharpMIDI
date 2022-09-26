@@ -2,25 +2,15 @@
 
 namespace SharpMIDI
 {
-    public class Note
-    {
-        public double start;
-        public double end;
-        public byte channel;
-        public byte key;
-        public byte vel;
-        public int track;
-    }
-
     public struct SynthEvent
     {
-        public long pos;
+        public uint pos;
         public int val;
     }
 
     public class Tempo
     {
-        public long pos;
+        public float pos;
         public int tempo;
     }
 
@@ -45,14 +35,18 @@ namespace SharpMIDI
             {
                 skippedNotes.Add(new int[256]);
             }
-            trackTime = 0;
+            float trackTime = 0;
             while(true)
             {
                 try
                 {
                     //this is huge zenith inspiration lol, if you can't beat 'em, join 'em
-                    trackTime+=ReadVariableLen();
-                    long time = trackTime;
+                    long test = ReadVariableLen();
+                    trackTime+=test;
+                    if(test > 4294967295){
+                        throw new Exception("Variable length offset overflowed the uint variable type, report this to EmK530!");
+                    }
+                    uint timeOptimize = (uint)test;
                     byte readEvent = stupid.ReadFast();
                     if (readEvent < 0x80)
                     {
@@ -75,7 +69,7 @@ namespace SharpMIDI
                                         eventAmount++;
                                         synthEvents.Add(new SynthEvent()
                                         {
-                                            pos = time,
+                                            pos = timeOptimize,
                                             val = readEvent | (note << 8) | (vel << 16)
                                         });
                                     } else {
@@ -88,7 +82,7 @@ namespace SharpMIDI
                                         eventAmount++;
                                         synthEvents.Add(new SynthEvent()
                                         {
-                                            pos = time,
+                                            pos = timeOptimize,
                                             val = customEvent | (note << 8) | (vel << 16)
                                         });
                                     } else {
@@ -107,7 +101,7 @@ namespace SharpMIDI
                                     eventAmount++;
                                     synthEvents.Add(new SynthEvent()
                                     {
-                                        pos = time,
+                                        pos = timeOptimize,
                                         val = readEvent | (note << 8) | (vel << 16)
                                     });
                                 } else {
@@ -123,7 +117,7 @@ namespace SharpMIDI
                                 eventAmount++;
                                 synthEvents.Add(new SynthEvent()
                                 {
-                                    pos = time,
+                                    pos = timeOptimize,
                                     val = readEvent | (note << 8) | (vel << 16)
                                 });
                             }
@@ -135,7 +129,7 @@ namespace SharpMIDI
                                 eventAmount++;
                                 synthEvents.Add(new SynthEvent()
                                 {
-                                    pos = time,
+                                    pos = timeOptimize,
                                     val = readEvent | (program << 8)
                                 });
                             }
@@ -147,7 +141,7 @@ namespace SharpMIDI
                                 eventAmount++;
                                 synthEvents.Add(new SynthEvent()
                                 {
-                                    pos = time,
+                                    pos = timeOptimize,
                                     val = readEvent | (pressure << 8)
                                 });
                             }
@@ -160,7 +154,7 @@ namespace SharpMIDI
                                 eventAmount++;
                                 synthEvents.Add(new SynthEvent()
                                 {
-                                    pos = time,
+                                    pos = timeOptimize,
                                     val = readEvent | (l << 8) | (m << 16)
                                 });
                             }
@@ -173,7 +167,7 @@ namespace SharpMIDI
                                 eventAmount++;
                                 synthEvents.Add(new SynthEvent()
                                 {
-                                    pos = time,
+                                    pos = timeOptimize,
                                     val = readEvent | (cc << 8) | (vv << 16)
                                 });
                             }
@@ -199,7 +193,7 @@ namespace SharpMIDI
                                             for (int i = 0; i != 3; i++)
                                                 tempo = (int)((tempo << 8) | stupid.Read());
                                             Tempo tempoEvent = new Tempo();
-                                            tempoEvent.pos = (long)time;
+                                            tempoEvent.pos = trackTime;
                                             tempoEvent.tempo = tempo;
                                             tempoAmount++;
                                             lock (tempos)
