@@ -4,7 +4,7 @@ namespace SharpMIDI
 {
     static class XSynth
     {
-                public struct MIDIHDR
+        public struct MIDIHDR
         {
             string lpdata;
             uint dwBufferLength;
