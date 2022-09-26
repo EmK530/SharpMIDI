@@ -16,10 +16,9 @@ namespace SharpMIDI
             double secondsSinceEpoch = t.TotalSeconds;
             return secondsSinceEpoch;
         }
-        public static void StartPlayback(uint ppq,long notes)
+        public static void StartPlayback(uint ppq,long notes,bool doFPSLimit)
         {
             Console.WriteLine("Now playing...");
-            double start = tick();
             double bpm = 120;
             double ticklen = (1/(double)ppq)*(60/bpm);
             double clock = 0;
@@ -28,67 +27,75 @@ namespace SharpMIDI
             double totalDelay = 0;
             int[] eventProgress = new int[tracks.Length];
             int[] tempoProgress = new int[tracks.Length];
+            System.Diagnostics.Stopwatch? watch = System.Diagnostics.Stopwatch.StartNew();
             while(true){
                 if(tick()-timeSinceLastPrint >= 1){
-                    Console.WriteLine("FPS: "+totalFrames/totalDelay);
+                    Console.WriteLine("FPS: "+(double)totalFrames/totalDelay);
                     timeSinceLastPrint = tick();
                     totalFrames = 0;
                     totalDelay = 0;
                 }
-                double delay = tick()-start;
-                if(delay > 0.1){
-                    Console.WriteLine("Cannot keep up! Fell "+(delay-0.1)+" seconds behind.");
-                    delay = 0.1;
-                }
-                totalDelay+=delay;
-                start=tick();
-                clock+=(delay)/ticklen;
-                int evs = 0;
-                int loops = -1;
-                foreach(MidiTrack i in tracks){
-                    loops++;
-                    while(true)
-                    {
-                        if(tempoProgress[loops] < i.tempoAmount){
-                            Tempo ev = i.tempos[tempoProgress[loops]];
-                            evs++;
-                            if(ev.pos <= clock){
-                                double lastbpm = bpm;
-                                bpm=60000000/(double)ev.tempo;
-                                ticklen=(1/(double)ppq)*(60/bpm);
-                                tempoProgress[loops]++;
-                                if(bpm != lastbpm){
-                                    Console.WriteLine("Tempo event, new BPM: "+bpm);
+                long watchtime = watch.ElapsedTicks;
+                if(doFPSLimit || watchtime > 10)
+                {
+                    watch.Stop();
+                    watch = System.Diagnostics.Stopwatch.StartNew();
+                    double delay = (double)watchtime / TimeSpan.TicksPerSecond;
+                    if(delay > 0.1){
+                        Console.WriteLine("Cannot keep up! Fell "+(delay-0.1)+" seconds behind.");
+                        delay = 0.1;
+                    }
+                    totalDelay+=delay;
+                    clock+=(delay)/ticklen;
+                    int evs = 0;
+                    int loops = -1;
+                    foreach(MidiTrack i in tracks){
+                        loops++;
+                        while(true)
+                        {
+                            if(tempoProgress[loops] < i.tempoAmount){
+                                Tempo ev = i.tempos[tempoProgress[loops]];
+                                evs++;
+                                if(ev.pos <= clock){
+                                    double lastbpm = bpm;
+                                    bpm=60000000/(double)ev.tempo;
+                                    ticklen=(1/(double)ppq)*(60/bpm);
+                                    tempoProgress[loops]++;
+                                    if(bpm != lastbpm){
+                                        Console.WriteLine("Tempo event, new BPM: "+bpm);
+                                    }
+                                } else {
+                                    break;
                                 }
                             } else {
                                 break;
                             }
-                        } else {
-                            break;
                         }
-                    }
-                    while(true)
-                    {
-                        if(eventProgress[loops] < i.eventAmount){
-                            SynthEvent ev = i.synthEvents[eventProgress[loops]];
-                            evs++;
-                            if(ev.pos <= clock){
-                                eventProgress[loops]++;
-                                Sound.Submit((uint)ev.val);
+                        while(true)
+                        {
+                            if(eventProgress[loops] < i.eventAmount){
+                                SynthEvent ev = i.synthEvents[eventProgress[loops]];
+                                evs++;
+                                if(ev.pos <= clock){
+                                    eventProgress[loops]++;
+                                    Sound.Submit((uint)ev.val);
+                                } else {
+                                    break;
+                                }
                             } else {
                                 break;
                             }
-                        } else {
-                            break;
                         }
                     }
-                }
-                totalFrames++;
-                System.Threading.Thread.Sleep(1);
-                if(evs==0){
-                    Console.WriteLine("Ran out of events, ending playback...");
-                    Sound.Close();
-                    return;
+                    totalFrames++;
+                    if(doFPSLimit){
+                        System.Threading.Thread.Sleep(1);
+                    }
+                    if(evs==0){
+                        Console.WriteLine("Ran out of events, ending playback...");
+                        Sound.Close();
+                        return;
+                    }
                 }
             }
         }
