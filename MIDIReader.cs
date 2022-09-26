@@ -17,7 +17,7 @@ namespace SharpMIDI
         private static long noteCount = 0;
         static uint totalSize = 0;
         static uint gcRequirement = 33554432;
-        public static void LoadPath(string path, byte thres, bool doFPSLimit){
+        public static void LoadPath(string path, byte thres){
             midiStream = new StreamReader(path).BaseStream;
             Console.WriteLine("Verifying header...");
             uint ppq = VerifyHeader();
@@ -50,7 +50,7 @@ namespace SharpMIDI
             };
             Console.WriteLine("\nMIDI Loaded!");
             Console.WriteLine("Notes: "+noteCount);
-            MIDIPlayer.StartPlayback(ppq,noteCount,doFPSLimit);
+            MIDIPlayer.StartPlayback(ppq,noteCount);
         }
         static void Seek(long offset){
             midiStream.Seek(midiStream.Position+2,SeekOrigin.Begin);
