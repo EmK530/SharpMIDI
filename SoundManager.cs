@@ -36,7 +36,7 @@ namespace SharpMIDI
             bool XSynthAvailable = false;
             try
             {
-                XSynthAvailable = KDMAPI.IsKDMAPIAvailable();
+                XSynthAvailable = XSynth.IsKDMAPIAvailable();
             }
             catch(DllNotFoundException)
             {
