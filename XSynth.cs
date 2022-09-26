@@ -70,49 +70,49 @@ namespace SharpMIDI
             double ASIOOutputLatency;
         }
 
-        [DllImport("OmniMIDI.dll")]
+        [DllImport("XSynth.dll")]
         public static extern bool ReturnKDMAPIVer(out Int32 Major, out Int32 Minor, out Int32 Build, out Int32 Revision);
 
-        [DllImport("OmniMIDI.dll")]
+        [DllImport("XSynth.dll")]
         public static extern bool IsKDMAPIAvailable();
 
-        [DllImport("OmniMIDI.dll")]
+        [DllImport("XSynth.dll")]
         public static extern int InitializeKDMAPIStream();
 
-        [DllImport("OmniMIDI.dll")]
+        [DllImport("XSynth.dll")]
         public static extern int TerminateKDMAPIStream();
 
-        [DllImport("OmniMIDI.dll")]
+        [DllImport("XSynth.dll")]
         public static extern void ResetKDMAPIStream();
 
-        [DllImport("OmniMIDI.dll")]
+        [DllImport("XSynth.dll")]
         public static extern uint SendCustomEvent(uint eventtype, uint chan, uint param);
 
-        [DllImport("OmniMIDI.dll")]
+        [DllImport("XSynth.dll")]
         public static extern uint SendDirectData(uint dwMsg);
 
-        [DllImport("OmniMIDI.dll")]
+        [DllImport("XSynth.dll")]
         public static extern uint SendDirectDataNoBuf(uint dwMsg);
 
-        [DllImport("OmniMIDI.dll")]
+        [DllImport("XSynth.dll")]
         public static extern uint SendDirectLongData(ref MIDIHDR IIMidiHdr);
 
-        [DllImport("OmniMIDI.dll")]
+        [DllImport("XSynth.dll")]
         public static extern uint SendDirectLongDataNoBuf(ref MIDIHDR IIMidiHdr);
 
-        [DllImport("OmniMIDI.dll")]
+        [DllImport("XSynth.dll")]
         public static extern uint PrepareLongData(ref MIDIHDR IIMidiHdr);
 
-        [DllImport("OmniMIDI.dll")]
+        [DllImport("XSynth.dll")]
         public static extern uint UnprepareLongData(ref MIDIHDR IIMidiHdr);
 
-        [DllImport("OmniMIDI.dll")]
+        [DllImport("XSynth.dll")]
         public static extern bool DriverSettings(OMSetting Setting, OMSettingMode Mode, IntPtr Value, Int32 cbValue);
 
-        [DllImport("OmniMIDI.dll")]
+        [DllImport("XSynth.dll")]
         public static extern void LoadCustomSoundFontsList(ref String Directory);
 
-        [DllImport("OmniMIDI.dll")]
+        [DllImport("XSynth.dll")]
         public static extern DebugInfo GetDriverDebugInfo();
     }
 }
