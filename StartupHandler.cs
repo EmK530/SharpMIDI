@@ -41,33 +41,7 @@ namespace SharpMIDI
                     }
                 }
             }
-            bool doFPSLimit = true;
-            while(true){
-                Console.Write("Disable FPS limiter? (0:no | 1:yes): ");
-                string? temp = Console.ReadLine();
-                if(temp == null){Console.WriteLine("\nInvalid input of null");}else{
-                    if (int.TryParse(temp, System.Globalization.NumberStyles.HexNumber, null, out int i))
-                    {
-                        switch(i)
-                        {
-                            case 0:
-                                Console.WriteLine("Leaving FPS limiter enabled.");
-                                break;
-                            case 1:
-                                Console.WriteLine("Disabling FPS limiter");
-                                doFPSLimit = false;
-                                break;
-                            default:
-                                Console.WriteLine("Unknown input, leaving FPS limiter enabled.");
-                                break;
-                        }
-                        break;
-                    } else {
-                        Console.WriteLine("\nCould not parse input");
-                    }
-                }
-            }
-            MIDIReader.LoadPath(PathInput,Threshold,doFPSLimit);
+            MIDIReader.LoadPath(PathInput,Threshold);
         }
     }
 }
