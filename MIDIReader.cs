@@ -17,19 +17,29 @@ namespace SharpMIDI
         private static long noteCount = 0;
         static uint totalSize = 0;
         static uint gcRequirement = 134217728;
+        static void PrintLine(string str){
+            if(!UserInput.silent){
+                Console.WriteLine(str);
+            }
+        }
+        static void Print(string str){
+            if(!UserInput.silent){
+                Console.Write(str);
+            }
+        }
         public static void LoadPath(string path, byte thres, int maxBuffer){
             midiStream = new StreamReader(path).BaseStream;
-            Console.WriteLine("Verifying header...");
+            PrintLine("Verifying header...");
             uint ppq = VerifyHeader();
-            Console.WriteLine("Searching for tracks...");
+            PrintLine("Searching for tracks...");
             while (midiStream.Position < midiStream.Length)
             {
                 bool success = IndexTrack();
-                if(!success){Console.WriteLine("Track scan ended early due to header issue, MIDI might be inaccurate!");break;}
+                if(!success){PrintLine("Track scan ended early due to header issue, MIDI might be inaccurate!");break;}
             }
-            Console.WriteLine("Found "+trackCount+" tracks.");
+            PrintLine("Found "+trackCount+" tracks.");
             MIDIPlayer.SubmitTrackCount(trackCount);
-            Console.WriteLine("Begin event scan.");
+            PrintLine("Begin event scan.");
             int loops = 0;
             Parallel.For(0, trackCount, (i) =>
             //for(ushort i = 0; i < trackCount; i++)
@@ -40,23 +50,23 @@ namespace SharpMIDI
                         bufSize=(int)trackSizes[i];
                     }
                     MidiTrack temp = new MidiTrack(new BufferByteReader(midiStream,bufSize,trackLocations[i],trackSizes[i]));
-                    Console.Write("\nLoaded tracks: "+loops+"/"+trackCount+" | Loading track #"+(i+1)+" | Size "+trackSizes[i]);
+                    loops++;
+                    Print("\nTrack progress: "+loops+"/"+trackCount+" | Loading track #"+(i+1)+" | Size "+trackSizes[i]);
                     totalSize+=trackSizes[i];
                     temp.ParseTrackEvents(thres);
                     noteCount+=temp.noteCount;
                     temp.Dispose();
                     MIDIPlayer.SubmitTrackForPlayback(i,temp);
                     if(totalSize >= gcRequirement){
-                        Console.Write(" | GC Executed");
+                        Print(" | GC Executed");
                         totalSize = 0;
                         GC.Collect();
                     }
-                    loops++;
                 }
             });
             GC.Collect();
-            Console.WriteLine("\nMIDI Loaded!");
-            Console.WriteLine("Notes: "+noteCount);
+            PrintLine("\nMIDI Loaded!");
+            PrintLine("Notes: "+noteCount);
             MIDIPlayer.StartPlayback(ppq,noteCount);
         }
         static void Seek(long offset){
@@ -98,7 +108,7 @@ namespace SharpMIDI
             {
                 if(midiStream.ReadByte() != l)
                 {
-                    Console.WriteLine("Header issue");
+                    PrintLine("Header issue");
                     return false;
                 }
             }
