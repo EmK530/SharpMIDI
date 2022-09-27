@@ -4,6 +4,16 @@ namespace SharpMIDI
 {
     class Sound
     {
+        static void PrintLine(string str){
+            if(!UserInput.silent){
+                Console.WriteLine(str);
+            }
+        }
+        static void Print(string str){
+            if(!UserInput.silent){
+                Console.Write(str);
+            }
+        }
         private static int engine = 0;
         private static IntPtr? handle;
         static (bool,string,string) KDMAPIPrompt(bool automatic)
@@ -137,8 +147,7 @@ namespace SharpMIDI
                             if(loaded == 1){
                                 return (true,"XSynth","XSynth initialized!");
                             } else {
-                                Console.WriteLine("XSynth init failed.");
-                                return KDMAPIPrompt(false);
+                                throw new Exception("XSynth init failed.");
                             }
                         } else {
                             throw new Exception("XSynth is not available.");
@@ -152,7 +161,7 @@ namespace SharpMIDI
         {
             switch(engine){
                 case 0:
-                    Console.WriteLine("WARNING: Attempt to submit MIDI event without an engine initialized.");
+                    PrintLine("WARNING: Attempt to submit MIDI event without an engine initialized.");
                     break;
                 case 1:
                     KDMAPI.SendDirectData(ev);
@@ -161,21 +170,21 @@ namespace SharpMIDI
                     if(handle!=null){
                         WinMM.midiOutShortMsg((IntPtr)handle,ev);
                     } else {
-                        Console.WriteLine("Attempt to submit audio event to null WinMM handle");
+                        PrintLine("Attempt to submit audio event to null WinMM handle");
                     }
                     break;
                 case 3:
                     XSynth.SendDirectData(ev);
                     break;
                 default:
-                    Console.WriteLine("WARNING: Cannot submit MIDI event, unknown engine is initialized.");
+                    PrintLine("WARNING: Cannot submit MIDI event, unknown engine is initialized.");
                     break;
             }
         }
         public static void Close(){
             switch(engine){
                 case 0:
-                    Console.WriteLine("WARNING: Attempt to terminate stream when no engine is initialized.");
+                    PrintLine("WARNING: Attempt to terminate stream when no engine is initialized.");
                     break;
                 case 1:
                     KDMAPI.TerminateKDMAPIStream();
@@ -184,14 +193,14 @@ namespace SharpMIDI
                     if(handle!=null){
                         WinMM.midiOutClose((IntPtr)handle);
                     } else {
-                        Console.WriteLine("Attempt to close null WinMM handle");
+                        PrintLine("Attempt to close null WinMM handle");
                     }
                     break;
                 case 3:
                     XSynth.TerminateKDMAPIStream();
                     break;
                 default:
-                    Console.WriteLine("WARNING: Cannot terminate stream, unknown engine is initialized.");
+                    PrintLine("WARNING: Cannot terminate stream, unknown engine is initialized.");
                     break;
             }
         }
