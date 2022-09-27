@@ -3,6 +3,16 @@ namespace SharpMIDI
     unsafe class MIDIPlayer
     {
         private static MidiTrack[] tracks = new MidiTrack[0];
+        static void PrintLine(string str){
+            if(!UserInput.silent){
+                Console.WriteLine(str);
+            }
+        }
+        static void Print(string str){
+            if(!UserInput.silent){
+                Console.Write(str);
+            }
+        }
         public static void SubmitTrackCount(int count)
         {
             tracks = new MidiTrack[count];
@@ -18,7 +28,7 @@ namespace SharpMIDI
         }
         public static void StartPlayback(uint ppq,long notes)
         {
-            Console.WriteLine("Now playing...");
+            PrintLine("Now playing...");
             double bpm = 120;
             double ticklen = (1/(double)ppq)*(60/bpm);
             double clock = 0;
@@ -31,7 +41,7 @@ namespace SharpMIDI
             System.Diagnostics.Stopwatch? watch = System.Diagnostics.Stopwatch.StartNew();
             while(true){
                 if(tick()-timeSinceLastPrint >= 1){
-                    Console.WriteLine("FPS: "+(double)totalFrames/totalDelay);
+                    PrintLine("FPS: "+(double)totalFrames/totalDelay);
                     timeSinceLastPrint = tick();
                     totalFrames = 0;
                     totalDelay = 0;
@@ -41,7 +51,7 @@ namespace SharpMIDI
                 watch = System.Diagnostics.Stopwatch.StartNew();
                 double delay = (double)watchtime / TimeSpan.TicksPerSecond;
                 if(delay > 0.1){
-                    Console.WriteLine("Cannot keep up! Fell "+(delay-0.1)+" seconds behind.");
+                    PrintLine("Cannot keep up! Fell "+(delay-0.1)+" seconds behind.");
                     delay = 0.1;
                 }
                 totalDelay+=delay;
@@ -61,7 +71,7 @@ namespace SharpMIDI
                                 ticklen=(1/(double)ppq)*(60/bpm);
                                 tempoProgress[loops]++;
                                 if(bpm != lastbpm){
-                                    Console.WriteLine("Tempo event, new BPM: "+bpm);
+                                    PrintLine("Tempo event, new BPM: "+bpm);
                                 }
                             } else {
                                 break;
@@ -78,7 +88,9 @@ namespace SharpMIDI
                             if(trackPositions[loops]+(long)ev.pos <= clock){
                                 eventProgress[loops]++;
                                 trackPositions[loops]+=(long)ev.pos;
-                                Sound.Submit((uint)ev.val);
+                                if(ev.val != 0){
+                                    Sound.Submit((uint)ev.val);
+                                }
                             } else {
                                 break;
                             }
@@ -90,7 +102,7 @@ namespace SharpMIDI
                 totalFrames++;
                 System.Threading.Thread.Sleep(1);
                 if(evs==0){
-                    Console.WriteLine("Ran out of events, ending playback...");
+                    PrintLine("Ran out of events, ending playback...");
                     Sound.Close();
                     return;
                 }
