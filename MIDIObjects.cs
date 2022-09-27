@@ -16,6 +16,16 @@ namespace SharpMIDI
 
     public unsafe class MidiTrack : IDisposable
     {
+        static void PrintLine(string str){
+            if(!UserInput.silent){
+                Console.WriteLine(str);
+            }
+        }
+        static void Print(string str){
+            if(!UserInput.silent){
+                Console.Write(str);
+            }
+        }
         public List<SynthEvent> synthEvents = new List<SynthEvent>();
         public List<int[]> skippedNotes = new List<int[]>();
         public long eventAmount = 0;
@@ -60,7 +70,7 @@ namespace SharpMIDI
                     (uint,bool) addition = AddNumbers((uint)test,(uint)removedOffset);
                     uint timeOptimize = addition.Item1;
                     if(addition.Item2){
-                        Console.WriteLine("Resolved uint overflow!");
+                        PrintLine("Resolved uint overflow!");
                         synthEvents.Add(new SynthEvent()
                         {
                             pos = 4294967295,
