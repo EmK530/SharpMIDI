@@ -6,80 +6,147 @@ namespace SharpMIDI
     {
         private static int engine = 0;
         private static IntPtr? handle;
-        static (bool,string,string) KDMAPIPrompt()
+        static (bool,string,string) KDMAPIPrompt(bool automatic)
         {
-            Console.Write("KDMAPI is available! Input y to use it: ");
-            string? input = Console.ReadLine();
-            if(input != null && input.ToLower() == "y"){
-                int loaded = KDMAPI.InitializeKDMAPIStream();
-                if(loaded == 1){
-                    engine = 1;
-                    return (true,"KDMAPI","KDMAPI initialized!");
+            if(!automatic)
+            {
+                Console.Write("KDMAPI is available! Input y to use it: ");
+                string? input = Console.ReadLine();
+                if(input != null && input.ToLower() == "y"){
+                    int loaded = KDMAPI.InitializeKDMAPIStream();
+                    if(loaded == 1){
+                        engine = 1;
+                        return (true,"KDMAPI","KDMAPI initialized!");
+                    } else {
+                        Console.WriteLine("KDMAPI init failed, falling back to WinMM...");
+                        engine = 2;
+                        (bool,string,string,IntPtr?,MidiOutCaps?) result = WinMM.Setup(null);
+                        handle=result.Item4;
+                        return (result.Item1,result.Item2,result.Item3);
+                        //return (false,"None","KDMAPI failed to initialize");
+                    }
                 } else {
-                    Console.WriteLine("KDMAPI init failed, falling back to WinMM...");
+                    Console.WriteLine("Loading WinMM...");
                     engine = 2;
-                    (bool,string,string,IntPtr?,MidiOutCaps?) result = WinMM.Setup();
+                    (bool,string,string,IntPtr?,MidiOutCaps?) result = WinMM.Setup(null);
                     handle=result.Item4;
                     return (result.Item1,result.Item2,result.Item3);
-                    //return (false,"None","KDMAPI failed to initialize");
                 }
             } else {
-                Console.WriteLine("Loading WinMM...");
-                engine = 2;
-                (bool,string,string,IntPtr?,MidiOutCaps?) result = WinMM.Setup();
-                handle=result.Item4;
-                return (result.Item1,result.Item2,result.Item3);
+                int loaded = KDMAPI.InitializeKDMAPIStream();
+                if(loaded == 1){
+                    return (true,"KDMAPI","KDMAPI initialized!");
+                } else {
+                    throw new Exception("KDMAPI failed to initialize");
+                }
             }
         }
-        public static (bool,string,string) Init()
+        public static (bool,string,string) Init(int? a, int? b)
         {
-            bool XSynthAvailable = false;
-            if(Environment.Is64BitProcess)
-            {
+            if(a==null){
+                bool XSynthAvailable = false;
+                if(Environment.Is64BitProcess)
+                {
+                    try
+                    {
+                        XSynthAvailable = XSynth.IsKDMAPIAvailable();
+                    }
+                    catch(DllNotFoundException)
+                    {
+                        Console.WriteLine("Failed to load XSynth.dll, is it in the same directory?");
+                    }
+                }
+                bool KDMAPIAvailable = false;
                 try
                 {
-                    XSynthAvailable = XSynth.IsKDMAPIAvailable();
+                    KDMAPIAvailable = KDMAPI.IsKDMAPIAvailable();
                 }
                 catch(DllNotFoundException)
                 {
-                    Console.WriteLine("Failed to load XSynth.dll, is it in the same directory?");
+                    Console.WriteLine("OmniMIDI DllImport failed.");
                 }
-            }
-            bool KDMAPIAvailable = false;
-            try
-            {
-                KDMAPIAvailable = KDMAPI.IsKDMAPIAvailable();
-            }
-            catch(DllNotFoundException)
-            {
-                Console.WriteLine("OmniMIDI DllImport failed.");
-            }
-            if(KDMAPIAvailable || XSynthAvailable){
-                if(XSynthAvailable){
-                    Console.Write("XSynth is available! Input y to use it: ");
-                    string? input = Console.ReadLine();
-                    if(input != null && input.ToLower() == "y"){
-                        int loaded = XSynth.InitializeKDMAPIStream();
-                        if(loaded == 1){
-                            engine = 3;
-                            return (true,"XSynth","XSynth initialized!");
+                if(KDMAPIAvailable || XSynthAvailable){
+                    if(XSynthAvailable){
+                        Console.Write("XSynth is available! Input y to use it: ");
+                        string? input = Console.ReadLine();
+                        if(input != null && input.ToLower() == "y"){
+                            int loaded = XSynth.InitializeKDMAPIStream();
+                            if(loaded == 1){
+                                engine = 3;
+                                return (true,"XSynth","XSynth initialized!");
+                            } else {
+                                Console.WriteLine("XSynth init failed.");
+                                return KDMAPIPrompt(false);
+                            }
                         } else {
-                            Console.WriteLine("XSynth init failed.");
-                            return KDMAPIPrompt();
+                            return KDMAPIPrompt(false);
                         }
                     } else {
-                        return KDMAPIPrompt();
+                        return KDMAPIPrompt(false);
                     }
-                } else {
-                    return KDMAPIPrompt();
+                }
+                Console.WriteLine("KDMAPI / XSynth not available, falling back to WinMM...");
+                engine = 2;
+                (bool,string,string,IntPtr?,MidiOutCaps?) result = WinMM.Setup(null);
+                handle=result.Item4;
+                return (result.Item1,result.Item2,result.Item3);
+            } else {
+                engine = (int)a;
+                switch(a)
+                {
+                    case 1:
+                        bool KDMAPIAvailable = false;
+                        try
+                        {
+                            KDMAPIAvailable = KDMAPI.IsKDMAPIAvailable();
+                        }
+                        catch(DllNotFoundException)
+                        {
+                            throw new Exception("OmniMIDI DllImport failed.");
+                        }
+                        if(KDMAPIAvailable){
+                            return KDMAPIPrompt(true);
+                        } else {
+                            throw new Exception("KDMAPI is not available.");
+                        }
+                    case 2:
+                        if(b==null){
+                            throw new Exception("No WinMM device was specified.");
+                        }
+                        Console.WriteLine("Loading WinMM...");
+                        (bool,string,string,IntPtr?,MidiOutCaps?) result = WinMM.Setup((int)b);
+                        handle=result.Item4;
+                        return (result.Item1,result.Item2,result.Item3);
+                    case 3:
+                        bool XSynthAvailable = false;
+                        try
+                        {
+                            if(Environment.Is64BitProcess)
+                            {
+                                XSynthAvailable = KDMAPI.IsKDMAPIAvailable();
+                            } else {
+                                throw new Exception("XSynth is not available on the x86 build");
+                            }
+                        }
+                        catch(DllNotFoundException)
+                        {
+                            throw new Exception("XSynth.dll DllImport failed.");
+                        }
+                        if(XSynthAvailable){
+                            int loaded = XSynth.InitializeKDMAPIStream();
+                            if(loaded == 1){
+                                return (true,"XSynth","XSynth initialized!");
+                            } else {
+                                Console.WriteLine("XSynth init failed.");
+                                return KDMAPIPrompt(false);
+                            }
+                        } else {
+                            throw new Exception("XSynth is not available.");
+                        }
+                    default:
+                        throw new Exception("Unknown audio engine ID.");
                 }
             }
-            Console.WriteLine("KDMAPI / XSynth not available, falling back to WinMM...");
-            engine = 2;
-            (bool,string,string,IntPtr?,MidiOutCaps?) result = WinMM.Setup();
-            handle=result.Item4;
-            return (result.Item1,result.Item2,result.Item3);
-            //return (false,"None","KDMAPI is not available");
         }
         public static void Submit(uint ev)
         {
