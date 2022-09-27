@@ -29,6 +29,16 @@ namespace SharpMIDI
             stupid=reader;
         }
         byte prevEvent = 0;
+        (uint result, bool overflowed) AddNumbers(uint first, uint second)
+        {
+            long test = first;
+            if (unchecked(first+second) != test+second)
+            {
+                return (unchecked(first+second),true);
+            } else {
+                return (unchecked(first+second),false);
+            }
+        }
         public void ParseTrackEvents(byte thres)
         {
             for(int i = 0; i < 16; i++)
@@ -36,6 +46,7 @@ namespace SharpMIDI
                 skippedNotes.Add(new int[256]);
             }
             float trackTime = 0;
+            float removedOffset = 0;
             while(true)
             {
                 try
@@ -46,7 +57,16 @@ namespace SharpMIDI
                     if(test > 4294967295){
                         throw new Exception("Variable length offset overflowed the uint variable type, report this to EmK530!");
                     }
-                    uint timeOptimize = (uint)test;
+                    (uint,bool) addition = AddNumbers((uint)test,(uint)removedOffset);
+                    uint timeOptimize = addition.Item1;
+                    if(addition.Item2){
+                        Console.WriteLine("Resolved uint overflow!");
+                        synthEvents.Add(new SynthEvent()
+                        {
+                            pos = 4294967295,
+                            val = 0
+                        });
+                    }
                     byte readEvent = stupid.ReadFast();
                     if (readEvent < 0x80)
                     {
@@ -72,8 +92,10 @@ namespace SharpMIDI
                                             pos = timeOptimize,
                                             val = readEvent | (note << 8) | (vel << 16)
                                         });
+                                        removedOffset=0;
                                     } else {
                                         skippedNotes[ch][note]++;
+                                        removedOffset+=test;
                                     }
                                 } else {
                                     if(skippedNotes[ch][note] == 0)
@@ -85,8 +107,10 @@ namespace SharpMIDI
                                             pos = timeOptimize,
                                             val = customEvent | (note << 8) | (vel << 16)
                                         });
+                                        removedOffset=0;
                                     } else {
                                         skippedNotes[ch][note]--;
+                                        removedOffset+=test;
                                     }
                                 }
                             }
@@ -104,8 +128,10 @@ namespace SharpMIDI
                                         pos = timeOptimize,
                                         val = readEvent | (note << 8) | (vel << 16)
                                     });
+                                    removedOffset=0;
                                 } else {
                                     skippedNotes[ch][note]--;
+                                    removedOffset+=test;
                                 }
                             }
                             break;
@@ -120,6 +146,7 @@ namespace SharpMIDI
                                     pos = timeOptimize,
                                     val = readEvent | (note << 8) | (vel << 16)
                                 });
+                                removedOffset=0;
                             }
                             break;
                         case 0b11000000:
@@ -132,6 +159,7 @@ namespace SharpMIDI
                                     pos = timeOptimize,
                                     val = readEvent | (program << 8)
                                 });
+                                removedOffset=0;
                             }
                             break;
                         case 0b11010000:
@@ -144,6 +172,7 @@ namespace SharpMIDI
                                     pos = timeOptimize,
                                     val = readEvent | (pressure << 8)
                                 });
+                                removedOffset=0;
                             }
                             break;
                         case 0b11100000:
@@ -157,6 +186,7 @@ namespace SharpMIDI
                                     pos = timeOptimize,
                                     val = readEvent | (l << 8) | (m << 16)
                                 });
+                                removedOffset=0;
                             }
                             break;
                         case 0b10110000:
@@ -170,9 +200,11 @@ namespace SharpMIDI
                                     pos = timeOptimize,
                                     val = readEvent | (cc << 8) | (vv << 16)
                                 });
+                                removedOffset=0;
                             }
                             break;
                         default:
+                            removedOffset+=test;
                             switch(readEvent)
                             {
                                 case 0b11110000:
@@ -242,6 +274,7 @@ namespace SharpMIDI
         public void Dispose()
         {
             stupid.Dispose();
+            stupid = null;
         }
     }
 }
