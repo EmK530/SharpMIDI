@@ -16,8 +16,8 @@ namespace SharpMIDI
         private static ushort trackCount = 0;
         private static long noteCount = 0;
         static uint totalSize = 0;
-        static uint gcRequirement = 33554432;
-        public static void LoadPath(string path, byte thres){
+        static uint gcRequirement = 134217728;
+        public static void LoadPath(string path, byte thres, int maxBuffer){
             midiStream = new StreamReader(path).BaseStream;
             Console.WriteLine("Verifying header...");
             uint ppq = VerifyHeader();
@@ -30,12 +30,17 @@ namespace SharpMIDI
             Console.WriteLine("Found "+trackCount+" tracks.");
             MIDIPlayer.SubmitTrackCount(trackCount);
             Console.WriteLine("Begin event scan.");
-            //Parallel.For(0, tracks.Length, (i) =>
-            for(ushort i = 0; i < trackCount; i++)
+            int loops = 0;
+            Parallel.For(0, trackCount, (i) =>
+            //for(ushort i = 0; i < trackCount; i++)
             {
                 {
-                    MidiTrack temp = new MidiTrack(new BufferByteReader(midiStream,10000,trackLocations[i],trackSizes[i]));
-                    Console.Write("\nTrack "+(i+1)+" / "+trackCount+" | Size "+trackSizes[i]);
+                    int bufSize = maxBuffer;
+                    if(bufSize>trackSizes[i]){
+                        bufSize=(int)trackSizes[i];
+                    }
+                    MidiTrack temp = new MidiTrack(new BufferByteReader(midiStream,bufSize,trackLocations[i],trackSizes[i]));
+                    Console.Write("\nLoaded tracks: "+loops+"/"+trackCount+" | Loading track #"+(i+1)+" | Size "+trackSizes[i]);
                     totalSize+=trackSizes[i];
                     temp.ParseTrackEvents(thres);
                     noteCount+=temp.noteCount;
@@ -46,8 +51,10 @@ namespace SharpMIDI
                         totalSize = 0;
                         GC.Collect();
                     }
+                    loops++;
                 }
-            };
+            });
+            GC.Collect();
             Console.WriteLine("\nMIDI Loaded!");
             Console.WriteLine("Notes: "+noteCount);
             MIDIPlayer.StartPlayback(ppq,noteCount);
