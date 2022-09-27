@@ -123,7 +123,7 @@ namespace SharpMIDI
                         if(b==null){
                             throw new Exception("No WinMM device was specified.");
                         }
-                        Console.WriteLine("Loading WinMM...");
+                        PrintLine("Loading WinMM...");
                         (bool,string,string,IntPtr?,MidiOutCaps?) result = WinMM.Setup((int)b);
                         handle=result.Item4;
                         return (result.Item1,result.Item2,result.Item3);
