@@ -34,13 +34,16 @@ namespace SharpMIDI
         public static (bool,string,string) Init()
         {
             bool XSynthAvailable = false;
-            try
+            if(Environment.Is64BitProcess)
             {
-                XSynthAvailable = XSynth.IsKDMAPIAvailable();
-            }
-            catch(DllNotFoundException)
-            {
-                Console.WriteLine("Failed to load XSynth.dll, is it in the same directory?");
+                try
+                {
+                    XSynthAvailable = XSynth.IsKDMAPIAvailable();
+                }
+                catch(DllNotFoundException)
+                {
+                    Console.WriteLine("Failed to load XSynth.dll, is it in the same directory?");
+                }
             }
             bool KDMAPIAvailable = false;
             try
