@@ -133,6 +133,8 @@ namespace SharpMIDI // Originally ZenithEngine
         public void Dispose()
         {
             buffer = null;
+            stream = null;
+            bufferNext = null;
         }
     }
 }
