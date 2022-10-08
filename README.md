@@ -12,6 +12,8 @@ MIDI files, of course.
 
 And if you are seeking performance then please download the synth [OmniMIDI](https://github.com/KeppySoftware/OmniMIDI/releases).
 
+Also supports XSynth DLLs on x64 builds of SharpMIDI.
+
 ## Build Info
 
 This was programmed with .NET 6.0.
