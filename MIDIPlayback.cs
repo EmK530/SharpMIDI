@@ -50,11 +50,11 @@ namespace SharpMIDI
                 watch.Stop();
                 watch = System.Diagnostics.Stopwatch.StartNew();
                 double delay = (double)watchtime / TimeSpan.TicksPerSecond;
+                totalDelay+=delay;
                 if(delay > 0.1){
                     PrintLine("Cannot keep up! Fell "+(delay-0.1)+" seconds behind.");
                     delay = 0.1;
                 }
-                totalDelay+=delay;
                 clock+=(delay)/ticklen;
                 int evs = 0;
                 int loops = -1;
