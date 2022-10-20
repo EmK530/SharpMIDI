@@ -100,7 +100,9 @@ namespace SharpMIDI
                     }
                 }
                 totalFrames++;
-                System.Threading.Thread.Sleep(1);
+                if(delay<0.001){
+                    System.Threading.Thread.Sleep(1); // sleep for timing accuracy
+                }
                 if(evs==0){
                     PrintLine("Ran out of events, ending playback...");
                     Sound.Close();
