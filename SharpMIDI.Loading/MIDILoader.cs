@@ -74,7 +74,7 @@ namespace SharpMIDI
             uint tracks = ReadInt16();
             tks = (int)tracks;
             uint ppq = ReadInt16();
-            MIDIClock.ppq = ppq;
+            //MIDIClock.ppq = ppq;
             MIDIPlayer.ppq = ppq;
             Starter.form.label6.Text = "PPQ: "+ppq;
             Starter.form.label6.Update();
