@@ -4,79 +4,46 @@ namespace SharpMIDI
 {
     public struct SynthEvent
     {
-        public uint pos;
+        public float pos;
         public int val;
     }
 
-    public class Tempo
+    public class MIDITrack
     {
-        public float pos;
-        public int tempo;
-    }
-
-    public unsafe class MidiTrack : IDisposable
-    {
-        static void PrintLine(string str){
-            if(!UserInput.silent){
-                Console.WriteLine(str);
-            }
-        }
-        static void Print(string str){
-            if(!UserInput.silent){
-                Console.Write(str);
-            }
-        }
         public List<SynthEvent> synthEvents = new List<SynthEvent>();
-        public List<int[]> skippedNotes = new List<int[]>();
+        public List<Tempo> tempos = new List<Tempo>();
         public long eventAmount = 0;
         public long tempoAmount = 0;
-        public List<Tempo> tempos = new List<Tempo>();
+        public long loadedNotes = 0;
+        public long totalNotes = 0;
+    }
+
+    public unsafe class FastTrack : IDisposable
+    {
+        public MIDITrack track = new MIDITrack();
+        public List<int[]> skippedNotes = new List<int[]>();
         public long trackTime = 0;
-        public long noteCount = 0;
         BufferByteReader stupid;
-        public MidiTrack(BufferByteReader reader)
+        public FastTrack(BufferByteReader reader)
         {
-            stupid=reader;
+            stupid = reader;
         }
         byte prevEvent = 0;
-        (uint result, bool overflowed) AddNumbers(uint first, uint second)
-        {
-            long test = first;
-            if (unchecked(first+second) != test+second)
-            {
-                return (unchecked(first+second),true);
-            } else {
-                return (unchecked(first+second),false);
-            }
-        }
         public void ParseTrackEvents(byte thres)
         {
-            for(int i = 0; i < 16; i++)
+            for (int i = 0; i < 16; i++)
             {
                 skippedNotes.Add(new int[256]);
             }
             float trackTime = 0;
             float removedOffset = 0;
-            while(true)
+            while (true)
             {
                 try
                 {
                     //this is huge zenith inspiration lol, if you can't beat 'em, join 'em
                     long test = ReadVariableLen();
-                    trackTime+=test;
-                    if(test > 4294967295){
-                        throw new Exception("Variable length offset overflowed the uint variable type, report this to EmK530!");
-                    }
-                    (uint,bool) addition = AddNumbers((uint)test,(uint)removedOffset);
-                    uint timeOptimize = addition.Item1;
-                    if(addition.Item2){
-                        PrintLine("Resolved uint overflow!");
-                        synthEvents.Add(new SynthEvent()
-                        {
-                            pos = 4294967295,
-                            val = 0
-                        });
-                    }
+                    trackTime += test;
                     byte readEvent = stupid.ReadFast();
                     if (readEvent < 0x80)
                     {
@@ -85,42 +52,50 @@ namespace SharpMIDI
                     }
                     prevEvent = readEvent;
                     byte trackEvent = (byte)(readEvent & 0b11110000);
-                    switch(trackEvent)
+                    switch (trackEvent)
                     {
                         case 0b10010000:
                             {
                                 byte ch = (byte)(readEvent & 0b00001111);
                                 byte note = stupid.Read();
                                 byte vel = stupid.ReadFast();
-                                if(vel!=0){
-                                    if(vel >= thres)
+                                if (vel != 0)
+                                {
+                                    track.totalNotes++;
+                                    if (vel >= thres)
                                     {
-                                        noteCount++;
-                                        eventAmount++;
-                                        synthEvents.Add(new SynthEvent()
+                                        track.loadedNotes++;
+                                        track.eventAmount++;
+                                        track.synthEvents.Add(new SynthEvent()
                                         {
-                                            pos = timeOptimize,
+                                            pos = test + removedOffset,
                                             val = readEvent | (note << 8) | (vel << 16)
                                         });
-                                        removedOffset=0;
-                                    } else {
-                                        skippedNotes[ch][note]++;
-                                        removedOffset+=test;
+                                        removedOffset = 0;
                                     }
-                                } else {
-                                    if(skippedNotes[ch][note] == 0)
+                                    else
                                     {
-                                        byte customEvent = (byte)(readEvent-0b00010000);
-                                        eventAmount++;
-                                        synthEvents.Add(new SynthEvent()
+                                        skippedNotes[ch][note]++;
+                                        removedOffset += test;
+                                    }
+                                }
+                                else
+                                {
+                                    if (skippedNotes[ch][note] == 0)
+                                    {
+                                        byte customEvent = (byte)(readEvent - 0b00010000);
+                                        track.eventAmount++;
+                                        track.synthEvents.Add(new SynthEvent()
                                         {
-                                            pos = timeOptimize,
+                                            pos = test+removedOffset,
                                             val = customEvent | (note << 8) | (vel << 16)
                                         });
-                                        removedOffset=0;
-                                    } else {
+                                        removedOffset = 0;
+                                    }
+                                    else
+                                    {
                                         skippedNotes[ch][note]--;
-                                        removedOffset+=test;
+                                        removedOffset += test;
                                     }
                                 }
                             }
@@ -130,18 +105,20 @@ namespace SharpMIDI
                                 int ch = readEvent & 0b00001111;
                                 byte note = stupid.Read();
                                 byte vel = stupid.ReadFast();
-                                if(skippedNotes[ch][note] == 0)
+                                if (skippedNotes[ch][note] == 0)
                                 {
-                                    eventAmount++;
-                                    synthEvents.Add(new SynthEvent()
+                                    track.eventAmount++;
+                                    track.synthEvents.Add(new SynthEvent()
                                     {
-                                        pos = timeOptimize,
+                                        pos = test + removedOffset,
                                         val = readEvent | (note << 8) | (vel << 16)
                                     });
-                                    removedOffset=0;
-                                } else {
+                                    removedOffset = 0;
+                                }
+                                else
+                                {
                                     skippedNotes[ch][note]--;
-                                    removedOffset+=test;
+                                    removedOffset += test;
                                 }
                             }
                             break;
@@ -150,39 +127,39 @@ namespace SharpMIDI
                                 int channel = readEvent & 0b00001111;
                                 byte note = stupid.Read();
                                 byte vel = stupid.Read();
-                                eventAmount++;
-                                synthEvents.Add(new SynthEvent()
+                                track.eventAmount++;
+                                track.synthEvents.Add(new SynthEvent()
                                 {
-                                    pos = timeOptimize,
+                                    pos = test + removedOffset,
                                     val = readEvent | (note << 8) | (vel << 16)
                                 });
-                                removedOffset=0;
+                                removedOffset = 0;
                             }
                             break;
                         case 0b11000000:
                             {
                                 int channel = readEvent & 0b00001111;
                                 byte program = stupid.Read();
-                                eventAmount++;
-                                synthEvents.Add(new SynthEvent()
+                                track.eventAmount++;
+                                track.synthEvents.Add(new SynthEvent()
                                 {
-                                    pos = timeOptimize,
+                                    pos = test + removedOffset,
                                     val = readEvent | (program << 8)
                                 });
-                                removedOffset=0;
+                                removedOffset = 0;
                             }
                             break;
                         case 0b11010000:
                             {
                                 int channel = readEvent & 0b00001111;
                                 byte pressure = stupid.Read();
-                                eventAmount++;
-                                synthEvents.Add(new SynthEvent()
+                                track.eventAmount++;
+                                track.synthEvents.Add(new SynthEvent()
                                 {
-                                    pos = timeOptimize,
+                                    pos = test + removedOffset,
                                     val = readEvent | (pressure << 8)
                                 });
-                                removedOffset=0;
+                                removedOffset = 0;
                             }
                             break;
                         case 0b11100000:
@@ -190,13 +167,13 @@ namespace SharpMIDI
                                 int channel = readEvent & 0b00001111;
                                 byte l = stupid.Read();
                                 byte m = stupid.Read();
-                                eventAmount++;
-                                synthEvents.Add(new SynthEvent()
+                                track.eventAmount++;
+                                track.synthEvents.Add(new SynthEvent()
                                 {
-                                    pos = timeOptimize,
+                                    pos = test + removedOffset,
                                     val = readEvent | (l << 8) | (m << 16)
                                 });
-                                removedOffset=0;
+                                removedOffset = 0;
                             }
                             break;
                         case 0b10110000:
@@ -204,18 +181,18 @@ namespace SharpMIDI
                                 int channel = readEvent & 0b00001111;
                                 byte cc = stupid.Read();
                                 byte vv = stupid.Read();
-                                eventAmount++;
-                                synthEvents.Add(new SynthEvent()
+                                track.eventAmount++;
+                                track.synthEvents.Add(new SynthEvent()
                                 {
-                                    pos = timeOptimize,
+                                    pos = test + removedOffset,
                                     val = readEvent | (cc << 8) | (vv << 16)
                                 });
-                                removedOffset=0;
+                                removedOffset = 0;
                             }
                             break;
                         default:
-                            removedOffset+=test;
-                            switch(readEvent)
+                            removedOffset += test;
+                            switch (readEvent)
                             {
                                 case 0b11110000:
                                     while (stupid.Read() != 0b11110111) ;
@@ -229,7 +206,8 @@ namespace SharpMIDI
                                 case 0xFF:
                                     {
                                         readEvent = stupid.Read();
-                                        if(readEvent == 81){
+                                        if (readEvent == 81)
+                                        {
                                             stupid.Skip(1);
                                             int tempo = 0;
                                             for (int i = 0; i != 3; i++)
@@ -237,15 +215,18 @@ namespace SharpMIDI
                                             Tempo tempoEvent = new Tempo();
                                             tempoEvent.pos = trackTime;
                                             tempoEvent.tempo = tempo;
-                                            tempoAmount++;
-                                            lock (tempos)
+                                            track.tempoAmount++;
+                                            lock (track.tempos)
                                             {
-                                                tempos.Add(tempoEvent);
+                                                track.tempos.Add(tempoEvent);
                                             }
                                         }
-                                        else if(readEvent == 0x2F){
+                                        else if (readEvent == 0x2F)
+                                        {
                                             break;
-                                        } else {
+                                        }
+                                        else
+                                        {
                                             stupid.Skip(stupid.Read());
                                         }
                                     }

@@ -4,19 +4,6 @@ namespace SharpMIDI
 {
     static class XSynth
     {
-        public struct MIDIHDR
-        {
-            string lpdata;
-            uint dwBufferLength;
-            uint dwBytesRecorded;
-            IntPtr dwUser;
-            uint dwFlags;
-            IntPtr lpNext;
-            IntPtr reserved;
-            uint dwOffset;
-            IntPtr dwReserved;
-        }
-
         public enum OMSettingMode
         {
             OM_SET = 0x0,
@@ -61,14 +48,6 @@ namespace SharpMIDI
             OM_ENABLEDELAYNOTEOFF = 0x10030,
             OM_DELAYNOTEOFFVAL = 0x10031
         }
-        public struct DebugInfo
-        {
-            float RenderingTime;
-            int[] ActiveVoices;
-
-            double ASIOInputLatency;
-            double ASIOOutputLatency;
-        }
 
         [DllImport("XSynth.dll")]
         public static extern bool ReturnKDMAPIVer(out Int32 Major, out Int32 Minor, out Int32 Build, out Int32 Revision);
@@ -95,24 +74,9 @@ namespace SharpMIDI
         public static extern uint SendDirectDataNoBuf(uint dwMsg);
 
         [DllImport("XSynth.dll")]
-        public static extern uint SendDirectLongData(ref MIDIHDR IIMidiHdr);
-
-        [DllImport("XSynth.dll")]
-        public static extern uint SendDirectLongDataNoBuf(ref MIDIHDR IIMidiHdr);
-
-        [DllImport("XSynth.dll")]
-        public static extern uint PrepareLongData(ref MIDIHDR IIMidiHdr);
-
-        [DllImport("XSynth.dll")]
-        public static extern uint UnprepareLongData(ref MIDIHDR IIMidiHdr);
-
-        [DllImport("XSynth.dll")]
         public static extern bool DriverSettings(OMSetting Setting, OMSettingMode Mode, IntPtr Value, Int32 cbValue);
 
         [DllImport("XSynth.dll")]
         public static extern void LoadCustomSoundFontsList(ref String Directory);
-
-        [DllImport("XSynth.dll")]
-        public static extern DebugInfo GetDriverDebugInfo();
     }
 }

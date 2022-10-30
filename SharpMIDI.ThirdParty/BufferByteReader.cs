@@ -113,7 +113,7 @@ namespace SharpMIDI // Originally ZenithEngine
         {
             for (int i = 0; i < count; i++)
             {
-                if(Pushback != -1)
+                if (Pushback != -1)
                 {
                     Pushback = -1;
                     continue;
