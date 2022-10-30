@@ -1,8 +1,5 @@
 #pragma warning disable 8602
 
-using System.Windows.Forms;
-using static System.Net.Mime.MediaTypeNames;
-
 namespace SharpMIDI
 {
     public struct Tempo
@@ -33,7 +30,38 @@ namespace SharpMIDI
             throw new Exception();
         }
 
-        public static async Task LoadPath(string path, int thres)
+        static async Task LoadArchive(uint ignoreover, int tracklimit)
+        {
+            await Task.Run(async () =>
+            {
+                int tk = 0;
+                int realtk = 0;
+                while (true)
+                {
+                    bool found = FindText("MTrk");
+                    if (found)
+                    {
+                        bool success = await ParseTrack(tk,ignoreover,realtk);
+                        tk++;
+                        if (success)
+                            realtk++;
+                        Starter.form.label10.Text = "Loaded tracks: " + realtk + " / " + MIDILoader.tks;
+                        Starter.form.label10.Update();
+                        //await Task.Delay(1);
+                        if (tracklimit<=tk){
+                            Console.WriteLine("Track limit reached, stopping loading.");
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            });
+        }
+
+        public static async void LoadPath(string path, int thres, uint ignoreover, int tracklimit)
         {
             threshold = thres;
             midi = File.OpenRead(path);
@@ -47,6 +75,7 @@ namespace SharpMIDI
             tks = (int)tracks;
             uint ppq = ReadInt16();
             MIDIClock.ppq = ppq;
+            MIDIPlayer.ppq = ppq;
             Starter.form.label6.Text = "PPQ: "+ppq;
             Starter.form.label6.Update();
             Starter.form.label10.Text = "Loaded tracks: 0 / " + tracks;
@@ -56,25 +85,13 @@ namespace SharpMIDI
             if (ppq < 0) { Crash("PPQ is negative"); }
             if (test.Item1)
             {
-                int tk = 0;
-                while (true)
-                {
-                    bool found = FindText("MTrk");
-                    if (found)
-                    {
-                        ParseTrack(tk);
-                        tk++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
+                await LoadArchive(ignoreover,tracklimit);
             } else
             {
                 midiStream = new StreamReader(path).BaseStream;
                 tks = 0;
                 VerifyHeader();
+                Console.WriteLine("Indexing MIDI tracks...");
                 while (midiStream.Position < midiStream.Length)
                 {
                     bool success = IndexTrack();
@@ -86,32 +103,43 @@ namespace SharpMIDI
                 Parallel.For(0, tks, (i) =>
                 {
                     {
-                        int bufSize = 2147483647;
-                        if (bufSize > trackSizes[(int)i])
+                        if (trackSizes[(int)i] <= ignoreover && loops <= tracklimit)
                         {
-                            bufSize = (int)trackSizes[(int)i];
-                        }
-                        FastTrack temp = new FastTrack(new BufferByteReader(midiStream, bufSize, trackLocations[(int)i], trackSizes[(int)i]));
-                        loops++;
-                        //Print("\nTrack progress: " + loops + "/" + trackCount + " | Loading track #" + (i + 1) + " | Size " + trackSizes[i]);
-                        totalSize += trackSizes[(int)i];
-                        temp.ParseTrackEvents((byte)threshold);
-                        temp.Dispose();
-                        MIDIPlayer.SubmitTrackForPlayback((int)i, temp.track);
-                        if (totalSize >= gcRequirement)
+                            int bufSize = 2147483647;
+                            if (bufSize > trackSizes[(int)i])
+                            {
+                                bufSize = (int)trackSizes[(int)i];
+                            }
+                            FastTrack temp = new FastTrack(new BufferByteReader(midiStream, bufSize, trackLocations[(int)i], trackSizes[(int)i]));
+                            Console.WriteLine("Loading track #" + (i + 1) + " | Size " + trackSizes[(int)i]);
+                            totalSize += trackSizes[(int)i];
+                            temp.ParseTrackEvents((byte)threshold);
+                            temp.Dispose();
+                            MIDIPlayer.SubmitTrackForPlayback((int)i, temp.track);
+                            loops++;
+                            Starter.form.label10.Text = "Loaded tracks: " + loops + " / " + MIDILoader.tks;
+                            Starter.form.label10.Update();
+                            if (totalSize >= gcRequirement)
+                            {
+                                totalSize = 0;
+                                GC.Collect();
+                            }
+                        } else
                         {
-                            totalSize = 0;
-                            GC.Collect();
+                            Console.WriteLine("Ignoring track #" + (i + 1) + " | Size " + trackSizes[(int)i]);
                         }
                     }
                 });
+                Starter.form.label10.Text = "Loaded tracks: " + MIDIPlayer.tracks.Length + " / " + MIDILoader.tks;
+                Starter.form.label10.Update();
             }
             Starter.form.label2.Text = "Status: Loaded";
             Starter.form.label2.Update();
             GC.Collect();
-            await MIDIPlayer.StartPlayback(ppq);
-            return;
-            //MIDIPlayer.PlayMIDI();
+            Starter.form.button4.Enabled = true;
+            Starter.form.button4.Update();
+            Console.WriteLine("MIDI Loaded");
+            //MIDIPlayer.StartPlayback(ppq);
         }
 
         static uint VerifyHeader()
@@ -164,7 +192,7 @@ namespace SharpMIDI
                 return (unchecked(first + second), false);
             }
         }
-        static void ParseTrack(int tk)
+        static async Task<bool> ParseTrack(int tk, uint ignoreover, int realtk)
         {
             MIDITrack track = new MIDITrack();
             List<int[]> skippedNotes = new List<int[]>();
@@ -174,91 +202,121 @@ namespace SharpMIDI
             }
             float trackTime = 0f;
             pushback = -1;
-            Seek(4);
-            byte prevEvent = 0;
-            float removedOffset = 0;
-            bool trackFinished = false;
-            while(!trackFinished)
+            uint trackSize = ReadInt32();
+            if (trackSize > ignoreover)
             {
-                long test = ReadVariableLen();
-                trackTime += test;
-                if (test > 4294967295)
+                Console.WriteLine("Skipping track #" + (tk + 1) + " | Size " + trackSize);
+                Seek(trackSize);
+                return false;
+            } else {
+                Console.WriteLine("Loading track #" + (tk + 1) + " | Size " + trackSize);
+                byte prevEvent = 0;
+                float removedOffset = 0;
+                bool trackFinished = false;
+                while (!trackFinished)
                 {
-                    Crash("Variable length offset overflowed the uint variable type, report this to EmK530!");
-                }
-                (uint, bool) addition = AddNumbers((uint)test, (uint)removedOffset);
-                uint timeOptimize = addition.Item1;
-                if (addition.Item2)
-                {
-                    //PrintLine("Resolved uint overflow!");
-                    track.synthEvents.Add(new SynthEvent()
+                    long test = ReadVariableLen();
+                    trackTime += test;
+                    if (test > 4294967295)
                     {
-                        pos = 4294967295,
-                        val = 0
-                    });
-                }
-                byte readEvent = (byte)midi.ReadByte();
-                if(readEvent < 0x80)
-                {
-                    pushback = readEvent;
-                    readEvent = prevEvent;
-                }
-                prevEvent = readEvent;
-                byte trackEvent = (byte)(readEvent & 0b11110000);
-                switch(trackEvent)
-                {
-                    case 0b10010000:
-                        //Note ON
+                        Crash("Variable length offset overflowed the uint variable type, report this to EmK530!");
+                    }
+                    (uint, bool) addition = AddNumbers((uint)test, (uint)removedOffset);
+                    uint timeOptimize = addition.Item1;
+                    if (addition.Item2)
+                    {
+                        //PrintLine("Resolved uint overflow!");
+                        track.synthEvents.Add(new SynthEvent()
                         {
-                            byte ch = (byte)(readEvent & 0b00001111);
-                            byte note = PushbackRead();
-                            byte vel = (byte)midi.ReadByte();
-                            if (vel != 0)
+                            pos = 4294967295,
+                            val = 0
+                        });
+                    }
+                    byte readEvent = (byte)midi.ReadByte();
+                    if (readEvent < 0x80)
+                    {
+                        pushback = readEvent;
+                        readEvent = prevEvent;
+                    }
+                    prevEvent = readEvent;
+                    byte trackEvent = (byte)(readEvent & 0b11110000);
+                    switch (trackEvent)
+                    {
+                        case 0b10010000:
+                            //Note ON
                             {
-                                track.totalNotes++;
-                                if(vel >= threshold)
+                                byte ch = (byte)(readEvent & 0b00001111);
+                                byte note = PushbackRead();
+                                byte vel = (byte)midi.ReadByte();
+                                if (vel != 0)
                                 {
-                                    track.eventAmount++;
+                                    track.totalNotes++;
+                                    if (vel >= threshold)
+                                    {
+                                        track.eventAmount++;
+                                        track.synthEvents.Add(new SynthEvent()
+                                        {
+                                            pos = timeOptimize,
+                                            val = readEvent | (note << 8) | (vel << 16)
+                                        });
+                                        track.loadedNotes++;
+                                        removedOffset = 0;
+                                    }
+                                    else
+                                    {
+                                        skippedNotes[ch][note]++;
+                                        removedOffset += test;
+                                    }
+                                }
+                                else
+                                {
+                                    if (skippedNotes[ch][note] == 0)
+                                    {
+                                        byte customEvent = (byte)(readEvent - 0b00010000);
+                                        track.synthEvents.Add(new SynthEvent()
+                                        {
+                                            pos = timeOptimize,
+                                            val = customEvent | (note << 8) | (vel << 16)
+                                        });
+                                        track.eventAmount++;
+                                        removedOffset = 0;
+                                    }
+                                    else
+                                    {
+                                        skippedNotes[ch][note]--;
+                                        removedOffset += test;
+                                    }
+                                }
+                            }
+                            break;
+                        case 0b10000000:
+                            //Note OFF
+                            {
+                                int ch = readEvent & 0b00001111;
+                                byte note = PushbackRead();
+                                byte vel = (byte)midi.ReadByte();
+                                if (skippedNotes[ch][note] == 0)
+                                {
                                     track.synthEvents.Add(new SynthEvent()
                                     {
                                         pos = timeOptimize,
                                         val = readEvent | (note << 8) | (vel << 16)
                                     });
-                                    track.loadedNotes++;
-                                    removedOffset = 0;
-                                } else
-                                {
-                                    skippedNotes[ch][note]++;
-                                    removedOffset += test;
-                                }
-                            } else
-                            {
-                                if (skippedNotes[ch][note] == 0)
-                                {
-                                    byte customEvent = (byte)(readEvent - 0b00010000);
-                                    track.synthEvents.Add(new SynthEvent()
-                                    {
-                                        pos = timeOptimize,
-                                        val = customEvent | (note << 8) | (vel << 16)
-                                    });
                                     track.eventAmount++;
                                     removedOffset = 0;
-                                } else
+                                }
+                                else
                                 {
                                     skippedNotes[ch][note]--;
                                     removedOffset += test;
                                 }
                             }
-                        }
-                        break;
-                    case 0b10000000:
-                        //Note OFF
-                        {
-                            int ch = readEvent & 0b00001111;
-                            byte note = PushbackRead();
-                            byte vel = (byte)midi.ReadByte();
-                            if (skippedNotes[ch][note] == 0)
+                            break;
+                        case 0b10100000:
                             {
+                                int channel = readEvent & 0b00001111;
+                                byte note = PushbackRead();
+                                byte vel = PushbackRead();
                                 track.synthEvents.Add(new SynthEvent()
                                 {
                                     pos = timeOptimize,
@@ -267,134 +325,116 @@ namespace SharpMIDI
                                 track.eventAmount++;
                                 removedOffset = 0;
                             }
-                            else
+                            break;
+                        case 0b11000000:
                             {
-                                skippedNotes[ch][note]--;
-                                removedOffset += test;
-                            }
-                        }
-                        break;
-                    case 0b10100000:
-                        {
-                            int channel = readEvent & 0b00001111;
-                            byte note = PushbackRead();
-                            byte vel = PushbackRead();
-                            track.synthEvents.Add(new SynthEvent()
-                            {
-                                pos = timeOptimize,
-                                val = readEvent | (note << 8) | (vel << 16)
-                            });
-                            track.eventAmount++;
-                            removedOffset = 0;
-                        }
-                        break;
-                    case 0b11000000:
-                        {
-                            int channel = readEvent & 0b00001111;
-                            byte program = PushbackRead();
-                            track.synthEvents.Add(new SynthEvent()
-                            {
-                                pos = timeOptimize,
-                                val = readEvent | (program << 8)
-                            });
-                            track.eventAmount++;
-                            removedOffset = 0;
-                        }
-                        break;
-                    case 0b11010000:
-                        {
-                            int channel = readEvent & 0b00001111;
-                            byte pressure = PushbackRead();
-                            track.synthEvents.Add(new SynthEvent()
-                            {
-                                pos = timeOptimize,
-                                val = readEvent | (pressure << 8)
-                            });
-                            track.eventAmount++;
-                            removedOffset = 0;
-                        }
-                        break;
-                    case 0b11100000:
-                        {
-                            int channel = readEvent & 0b00001111;
-                            byte l = PushbackRead();
-                            byte m = PushbackRead();
-                            track.synthEvents.Add(new SynthEvent()
-                            {
-                                pos = timeOptimize,
-                                val = readEvent | (l << 8) | (m << 16)
-                            });
-                            track.eventAmount++;
-                            removedOffset = 0;
-                        }
-                        break;
-                    case 0b10110000:
-                        {
-                            int channel = readEvent & 0b00001111;
-                            byte cc = PushbackRead();
-                            byte vv = PushbackRead();
-                            track.synthEvents.Add(new SynthEvent()
-                            {
-                                pos = timeOptimize,
-                                val = readEvent | (cc << 8) | (vv << 16)
-                            });
-                            track.eventAmount++;
-                            removedOffset = 0;
-                        }
-                        break;
-                    default:
-                        removedOffset += test;
-                        switch(readEvent)
-                        {
-                            case 0b11110000:
-                                while (PushbackRead() != 0b11110111) ;
-                                break;
-                            case 0b11110010:
-                                Seek(2);
-                                break;
-                            case 0b11110011:
-                                Seek(1);
-                                break;
-                            case 0xFF:
+                                int channel = readEvent & 0b00001111;
+                                byte program = PushbackRead();
+                                track.synthEvents.Add(new SynthEvent()
                                 {
-                                    readEvent = PushbackRead();
-                                    if (readEvent == 81)
+                                    pos = timeOptimize,
+                                    val = readEvent | (program << 8)
+                                });
+                                track.eventAmount++;
+                                removedOffset = 0;
+                            }
+                            break;
+                        case 0b11010000:
+                            {
+                                int channel = readEvent & 0b00001111;
+                                byte pressure = PushbackRead();
+                                track.synthEvents.Add(new SynthEvent()
+                                {
+                                    pos = timeOptimize,
+                                    val = readEvent | (pressure << 8)
+                                });
+                                track.eventAmount++;
+                                removedOffset = 0;
+                            }
+                            break;
+                        case 0b11100000:
+                            {
+                                int channel = readEvent & 0b00001111;
+                                byte l = PushbackRead();
+                                byte m = PushbackRead();
+                                track.synthEvents.Add(new SynthEvent()
+                                {
+                                    pos = timeOptimize,
+                                    val = readEvent | (l << 8) | (m << 16)
+                                });
+                                track.eventAmount++;
+                                removedOffset = 0;
+                            }
+                            break;
+                        case 0b10110000:
+                            {
+                                int channel = readEvent & 0b00001111;
+                                byte cc = PushbackRead();
+                                byte vv = PushbackRead();
+                                track.synthEvents.Add(new SynthEvent()
+                                {
+                                    pos = timeOptimize,
+                                    val = readEvent | (cc << 8) | (vv << 16)
+                                });
+                                track.eventAmount++;
+                                removedOffset = 0;
+                            }
+                            break;
+                        default:
+                            removedOffset += test;
+                            switch (readEvent)
+                            {
+                                case 0b11110000:
+                                    while (PushbackRead() != 0b11110111) ;
+                                    break;
+                                case 0b11110010:
+                                    Seek(2);
+                                    break;
+                                case 0b11110011:
+                                    Seek(1);
+                                    break;
+                                case 0xFF:
                                     {
-                                        Seek(1);
-                                        int tempo = 0;
-                                        for (int i = 0; i != 3; i++)
-                                            tempo = (int)((tempo << 8) | PushbackRead());
-                                        Tempo tempoEvent = new Tempo();
-                                        tempoEvent.pos = trackTime;
-                                        tempoEvent.tempo = tempo;
-                                        track.tempoAmount++;
-                                        lock (track.tempos)
+                                        readEvent = PushbackRead();
+                                        if (readEvent == 81)
                                         {
-                                            track.tempos.Add(tempoEvent);
+                                            Seek(1);
+                                            int tempo = 0;
+                                            for (int i = 0; i != 3; i++)
+                                                tempo = (int)((tempo << 8) | PushbackRead());
+                                            Tempo tempoEvent = new Tempo();
+                                            tempoEvent.pos = trackTime;
+                                            tempoEvent.tempo = tempo;
+                                            track.tempoAmount++;
+                                            lock (track.tempos)
+                                            {
+                                                track.tempos.Add(tempoEvent);
+                                            }
+                                        }
+                                        else if (readEvent == 0x2F)
+                                        {
+                                            Seek(1);
+                                            trackFinished = true;
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            Seek(PushbackRead());
                                         }
                                     }
-                                    else if (readEvent == 0x2F)
-                                    {
-                                        Seek(1);
-                                        trackFinished = true;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        Seek(PushbackRead());
-                                    }
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                    }
                 }
+                totalNotes += totalNotes;
+                loadedNotes += loadedNotes;
+                loadedTracks++;
+                MIDIPlayer.SubmitTrackForPlayback(realtk, track);
+                return true;
             }
-            totalNotes += totalNotes;
-            loadedNotes += loadedNotes;
-            loadedTracks++;
-            MIDIPlayer.SubmitTrackForPlayback(tk, track);
         }
 
         static byte PushbackRead()
@@ -486,7 +526,8 @@ namespace SharpMIDI
                     }
                     else
                     {
-                        Crash("Header issue searching for " + text + " on char " + l.ToString() + ", found " + test + " at pos " + midiStream.Position);
+                        MessageBox.Show("Could not locate header '"+text+"', attempting to continue.");
+                        //Crash("Header issue searching for " + text + " on char " + l.ToString() + ", found " + test + " at pos " + midiStream.Position);
                     }
                 }
             }
