@@ -2,23 +2,21 @@ namespace SharpMIDI
 {
     class MIDIPlayer
     {
-        private static MIDITrack[] tracks = new MIDITrack[0];
+        public static MIDITrack[] tracks = new MIDITrack[0];
         public static void SubmitTrackCount(int count)
         {
             tracks = new MIDITrack[count];
         }
-        static int trackProgress = 0;
         static long totalNotes = 0;
         static long loadedNotes = 0;
+        public static uint ppq = 0;
+        public static bool paused = false;
         public static void SubmitTrackForPlayback(int index, MIDITrack track)
         {
             if (tracks.Length <= index)
             {
                 Array.Resize(ref tracks, tracks.Length + 1);
             }
-            trackProgress++;
-            Starter.form.label10.Text = "Loaded tracks: " + trackProgress + " / " + MIDILoader.tks;
-            Starter.form.label10.Update();
             Starter.form.label7.Text = "Memory Usage: " + Form1.toMemoryText(GC.GetTotalMemory(false)) + " (May be inaccurate)";
             Starter.form.label7.Update();
             loadedNotes += track.loadedNotes;
@@ -33,8 +31,10 @@ namespace SharpMIDI
             double secondsSinceEpoch = t.TotalSeconds;
             return secondsSinceEpoch;
         }
-        public static async Task StartPlayback(uint ppq)
+        public static bool stopping = false;
+        public static async Task StartPlayback()
         {
+            stopping = false;
             double bpm = 120;
             double ticklen = (1 / (double)ppq) * (60 / bpm);
             double clock = 0;
@@ -47,24 +47,27 @@ namespace SharpMIDI
             System.Diagnostics.Stopwatch? watch = System.Diagnostics.Stopwatch.StartNew();
             while (true)
             {
-                if (tick() - timeSinceLastPrint >= 1)
+                if (tick() - timeSinceLastPrint >= 0.01d)
                 {
                     //PrintLine("FPS: " + (double)totalFrames / totalDelay);
+                    Starter.form.label12.Text = "Frametime: " + Math.Round(((double)(totalDelay / TimeSpan.TicksPerSecond) / (double)totalFrames)*1000,5) + " ms";
+                    Starter.form.label12.Update();
                     timeSinceLastPrint = tick();
                     totalFrames = 0;
                     totalDelay = 0;
+                    await Task.Delay(1);
                 }
                 long watchtime = watch.ElapsedTicks;
                 watch.Stop();
                 watch = System.Diagnostics.Stopwatch.StartNew();
                 double delay = (double)watchtime / TimeSpan.TicksPerSecond;
-                totalDelay += delay;
+                totalDelay += watchtime;
                 if (delay > 0.1)
                 {
-                    //PrintLine("Cannot keep up! Fell " + (delay - 0.1) + " seconds behind.");
                     delay = 0.1;
                 }
-                clock += (delay) / ticklen;
+                if(!paused)
+                    clock += (delay) / ticklen;
                 int evs = 0;
                 int loops = -1;
                 foreach (MIDITrack i in tracks)
@@ -124,17 +127,21 @@ namespace SharpMIDI
                     }
                 }
                 totalFrames++;
-                if (delay < 0.001)
+                //if (delay < 0.001)
+                //{
+                    //await Task.Delay(1); // sleep for timing accuracy
+                //}
+                if (evs == 0 || stopping)
                 {
-                    await Task.Delay(1); // sleep for timing accuracy
-                }
-                if (evs == 0)
-                {
+                    if (stopping)
+                        Sound.Reload();
+                    Console.WriteLine("Playback finished...");
                     //PrintLine("Ran out of events, ending playback...");
-                    Sound.Close();
-                    return;
+                    //Sound.Close();
+                    break;
                 }
             }
+            return;
         }
     }
 }
