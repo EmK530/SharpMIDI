@@ -1,4 +1,4 @@
-﻿namespace SharpMIDI
+namespace SharpMIDI
 {
     partial class Form1
     {
@@ -32,12 +32,9 @@
             this.button1 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
-            this.button2 = new System.Windows.Forms.Button();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.label8 = new System.Windows.Forms.Label();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
@@ -49,7 +46,20 @@
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.button3 = new System.Windows.Forms.Button();
             this.label13 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.button4 = new System.Windows.Forms.Button();
+            this.button5 = new System.Windows.Forms.Button();
+            this.button6 = new System.Windows.Forms.Button();
+            this.label14 = new System.Windows.Forms.Label();
+            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
+            this.button7 = new System.Windows.Forms.Button();
+            this.label15 = new System.Windows.Forms.Label();
+            this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
+            this.label4 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             this.SuspendLayout();
             // 
             // Title
@@ -58,15 +68,15 @@
             this.Title.Font = new System.Drawing.Font("Nirmala UI", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.Title.Location = new System.Drawing.Point(0, 0);
             this.Title.Name = "Title";
-            this.Title.Size = new System.Drawing.Size(519, 40);
+            this.Title.Size = new System.Drawing.Size(496, 40);
             this.Title.TabIndex = 0;
-            this.Title.Text = "SharpMIDI v3.0.0 Beta";
+            this.Title.Text = "SharpMIDI v3.0.0";
             // 
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button1.Enabled = false;
-            this.button1.Location = new System.Drawing.Point(416, 0);
+            this.button1.Location = new System.Drawing.Point(393, 0);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(103, 25);
             this.button1.TabIndex = 1;
@@ -80,7 +90,7 @@
             this.label1.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.label1.Location = new System.Drawing.Point(0, 40);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(519, 15);
+            this.label1.Size = new System.Drawing.Size(496, 15);
             this.label1.TabIndex = 2;
             this.label1.Text = "Selected MIDI: (none)";
             // 
@@ -90,37 +100,17 @@
             this.label2.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.label2.Location = new System.Drawing.Point(0, 55);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(519, 15);
+            this.label2.Size = new System.Drawing.Size(496, 15);
             this.label2.TabIndex = 3;
             this.label2.Text = "Status: Not Loaded";
-            // 
-            // label3
-            // 
-            this.label3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label3.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label3.Location = new System.Drawing.Point(0, 70);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(519, 15);
-            this.label3.TabIndex = 4;
-            this.label3.Text = "Name: ???";
-            // 
-            // label4
-            // 
-            this.label4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label4.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label4.Location = new System.Drawing.Point(0, 85);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(519, 15);
-            this.label4.TabIndex = 5;
-            this.label4.Text = "Duration: ?:??";
             // 
             // label5
             // 
             this.label5.Dock = System.Windows.Forms.DockStyle.Top;
             this.label5.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label5.Location = new System.Drawing.Point(0, 100);
+            this.label5.Location = new System.Drawing.Point(0, 85);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(519, 15);
+            this.label5.Size = new System.Drawing.Size(496, 15);
             this.label5.TabIndex = 6;
             this.label5.Text = "Notes: ??? / ???";
             // 
@@ -128,9 +118,9 @@
             // 
             this.label6.Dock = System.Windows.Forms.DockStyle.Top;
             this.label6.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label6.Location = new System.Drawing.Point(0, 115);
+            this.label6.Location = new System.Drawing.Point(0, 100);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(519, 15);
+            this.label6.Size = new System.Drawing.Size(496, 15);
             this.label6.TabIndex = 7;
             this.label6.Text = "PPQ: ???";
             // 
@@ -138,29 +128,18 @@
             // 
             this.label7.Dock = System.Windows.Forms.DockStyle.Top;
             this.label7.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label7.Location = new System.Drawing.Point(0, 130);
+            this.label7.Location = new System.Drawing.Point(0, 115);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(519, 15);
+            this.label7.Size = new System.Drawing.Size(496, 15);
             this.label7.TabIndex = 8;
             this.label7.Text = "Memory Usage: 0 B";
-            // 
-            // button2
-            // 
-            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button2.Enabled = false;
-            this.button2.Location = new System.Drawing.Point(314, 0);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(103, 25);
-            this.button2.TabIndex = 9;
-            this.button2.Text = "Unload";
-            this.button2.UseVisualStyleBackColor = true;
             // 
             // radioButton1
             // 
             this.radioButton1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.radioButton1.AutoSize = true;
             this.radioButton1.Checked = true;
-            this.radioButton1.Location = new System.Drawing.Point(439, 55);
+            this.radioButton1.Location = new System.Drawing.Point(416, 55);
             this.radioButton1.Name = "radioButton1";
             this.radioButton1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioButton1.Size = new System.Drawing.Size(80, 19);
@@ -173,7 +152,7 @@
             // 
             this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label8.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label8.Location = new System.Drawing.Point(439, 40);
+            this.label8.Location = new System.Drawing.Point(416, 40);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(80, 15);
             this.label8.TabIndex = 11;
@@ -184,7 +163,7 @@
             // 
             this.radioButton2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.radioButton2.AutoSize = true;
-            this.radioButton2.Location = new System.Drawing.Point(451, 73);
+            this.radioButton2.Location = new System.Drawing.Point(428, 73);
             this.radioButton2.Name = "radioButton2";
             this.radioButton2.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioButton2.Size = new System.Drawing.Size(68, 19);
@@ -196,7 +175,7 @@
             // 
             this.radioButton3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.radioButton3.AutoSize = true;
-            this.radioButton3.Location = new System.Drawing.Point(457, 93);
+            this.radioButton3.Location = new System.Drawing.Point(434, 93);
             this.radioButton3.Name = "radioButton3";
             this.radioButton3.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.radioButton3.Size = new System.Drawing.Size(62, 19);
@@ -208,7 +187,7 @@
             // 
             this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label9.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label9.Location = new System.Drawing.Point(429, 115);
+            this.label9.Location = new System.Drawing.Point(406, 115);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(90, 15);
             this.label9.TabIndex = 14;
@@ -218,7 +197,7 @@
             // label10
             // 
             this.label10.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label10.Location = new System.Drawing.Point(0, 145);
+            this.label10.Location = new System.Drawing.Point(0, 130);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(181, 15);
             this.label10.TabIndex = 16;
@@ -229,7 +208,7 @@
             this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(314, 133);
+            this.comboBox1.Location = new System.Drawing.Point(291, 133);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(205, 23);
             this.comboBox1.TabIndex = 17;
@@ -238,9 +217,9 @@
             // 
             this.label11.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label11.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label11.Location = new System.Drawing.Point(429, 188);
+            this.label11.Location = new System.Drawing.Point(415, 188);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(90, 15);
+            this.label11.Size = new System.Drawing.Size(81, 14);
             this.label11.TabIndex = 19;
             this.label11.Text = "Note Threshold";
             this.label11.TextAlign = System.Drawing.ContentAlignment.TopRight;
@@ -248,7 +227,7 @@
             // numericUpDown1
             // 
             this.numericUpDown1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.numericUpDown1.Location = new System.Drawing.Point(399, 206);
+            this.numericUpDown1.Location = new System.Drawing.Point(415, 205);
             this.numericUpDown1.Maximum = new decimal(new int[] {
             127,
             0,
@@ -256,7 +235,7 @@
             0});
             this.numericUpDown1.Name = "numericUpDown1";
             this.numericUpDown1.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.numericUpDown1.Size = new System.Drawing.Size(120, 23);
+            this.numericUpDown1.Size = new System.Drawing.Size(81, 23);
             this.numericUpDown1.TabIndex = 20;
             this.numericUpDown1.Value = new decimal(new int[] {
             10,
@@ -267,7 +246,7 @@
             // button3
             // 
             this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button3.Location = new System.Drawing.Point(398, 162);
+            this.button3.Location = new System.Drawing.Point(375, 162);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(121, 23);
             this.button3.TabIndex = 23;
@@ -279,18 +258,163 @@
             // 
             this.label13.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label13.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label13.Location = new System.Drawing.Point(416, 25);
+            this.label13.Location = new System.Drawing.Point(393, 25);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(103, 15);
             this.label13.TabIndex = 24;
             this.label13.Text = "Select a Synth first!";
             this.label13.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
+            // label3
+            // 
+            this.label3.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label3.Location = new System.Drawing.Point(0, 160);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(181, 15);
+            this.label3.TabIndex = 25;
+            this.label3.Text = "Played events: 0";
+            // 
+            // label12
+            // 
+            this.label12.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label12.Location = new System.Drawing.Point(0, 175);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(261, 15);
+            this.label12.TabIndex = 26;
+            this.label12.Text = "Frametime: N/A ms";
+            // 
+            // button4
+            // 
+            this.button4.Enabled = false;
+            this.button4.Location = new System.Drawing.Point(0, 193);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(46, 23);
+            this.button4.TabIndex = 27;
+            this.button4.Text = "Run";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
+            // button5
+            // 
+            this.button5.Enabled = false;
+            this.button5.Location = new System.Drawing.Point(0, 222);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(46, 23);
+            this.button5.TabIndex = 28;
+            this.button5.Text = "Stop";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
+            // 
+            // button6
+            // 
+            this.button6.Enabled = false;
+            this.button6.Location = new System.Drawing.Point(52, 222);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(46, 23);
+            this.button6.TabIndex = 29;
+            this.button6.Text = "Pause";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
+            // label14
+            // 
+            this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label14.Location = new System.Drawing.Point(373, 231);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(123, 16);
+            this.label14.TabIndex = 33;
+            this.label14.Text = "Ignore tracks over size";
+            this.label14.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // numericUpDown2
+            // 
+            this.numericUpDown2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.numericUpDown2.Location = new System.Drawing.Point(373, 250);
+            this.numericUpDown2.Maximum = new decimal(new int[] {
+            -1,
+            0,
+            0,
+            0});
+            this.numericUpDown2.Name = "numericUpDown2";
+            this.numericUpDown2.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.numericUpDown2.Size = new System.Drawing.Size(123, 23);
+            this.numericUpDown2.TabIndex = 30;
+            this.numericUpDown2.Value = new decimal(new int[] {
+            -1,
+            0,
+            0,
+            0});
+            // 
+            // button7
+            // 
+            this.button7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button7.Location = new System.Drawing.Point(375, 324);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(121, 23);
+            this.button7.TabIndex = 31;
+            this.button7.Text = "Enable Console";
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click);
+            // 
+            // label15
+            // 
+            this.label15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label15.Location = new System.Drawing.Point(435, 276);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(61, 16);
+            this.label15.TabIndex = 32;
+            this.label15.Text = "Track limit";
+            this.label15.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // numericUpDown3
+            // 
+            this.numericUpDown3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.numericUpDown3.Location = new System.Drawing.Point(435, 295);
+            this.numericUpDown3.Maximum = new decimal(new int[] {
+            65535,
+            0,
+            0,
+            0});
+            this.numericUpDown3.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDown3.Name = "numericUpDown3";
+            this.numericUpDown3.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.numericUpDown3.Size = new System.Drawing.Size(61, 23);
+            this.numericUpDown3.TabIndex = 34;
+            this.numericUpDown3.Value = new decimal(new int[] {
+            65535,
+            0,
+            0,
+            0});
+            // 
+            // label4
+            // 
+            this.label4.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label4.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label4.Location = new System.Drawing.Point(0, 70);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(496, 15);
+            this.label4.TabIndex = 5;
+            this.label4.Text = "Duration: ?:??";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(519, 426);
+            this.ClientSize = new System.Drawing.Size(496, 410);
+            this.Controls.Add(this.numericUpDown3);
+            this.Controls.Add(this.label15);
+            this.Controls.Add(this.button7);
+            this.Controls.Add(this.numericUpDown2);
+            this.Controls.Add(this.label14);
+            this.Controls.Add(this.button6);
+            this.Controls.Add(this.button5);
+            this.Controls.Add(this.button4);
+            this.Controls.Add(this.label12);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.label13);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.numericUpDown1);
@@ -302,20 +426,20 @@
             this.Controls.Add(this.radioButton2);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.radioButton1);
-            this.Controls.Add(this.button2);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.Title);
-            this.MinimumSize = new System.Drawing.Size(438, 312);
+            this.MinimumSize = new System.Drawing.Size(438, 386);
             this.Name = "Form1";
             this.Text = "SharpMIDI GUI";
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -325,7 +449,6 @@
 
         private Label Title;
         private Button button1;
-        private Button button2;
         private RadioButton radioButton1;
         private Label label8;
         private RadioButton radioButton2;
@@ -335,8 +458,6 @@
         private Label label11;
         public Label label1;
         public Label label2;
-        public Label label3;
-        public Label label4;
         public Label label5;
         public Label label6;
         public Label label10;
@@ -344,5 +465,16 @@
         public NumericUpDown numericUpDown1;
         public Button button3;
         public Label label13;
+        public Label label3;
+        public Label label12;
+        public Button button4;
+        public Button button5;
+        public Button button6;
+        private Label label14;
+        public NumericUpDown numericUpDown2;
+        public Button button7;
+        private Label label15;
+        public NumericUpDown numericUpDown3;
+        public Label label4;
     }
 }
