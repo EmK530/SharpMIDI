@@ -1,12 +1,12 @@
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
-
 namespace SharpMIDI
 {
     class Sound
     {
         private static int engine = 0;
+        public static long totalEvents = 0;
+        static string lastWinMMDevice = "";
         private static IntPtr? handle;
+        static System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
         public static bool Init(int synth, string winMMdev)
         {
             Close();
@@ -37,6 +37,7 @@ namespace SharpMIDI
                     {
                         engine = 2;
                         handle = result.Item4;
+                        lastWinMMDevice = winMMdev;
                         return true;
                     }
                 case 3:
@@ -57,6 +58,23 @@ namespace SharpMIDI
                     return false;
             }
         }
+        public static void Reload()
+        {
+            Close();
+            switch (engine)
+            {
+                case 1:
+                    KDMAPI.InitializeKDMAPIStream();
+                    break;
+                case 2:
+                    (bool, string, string, IntPtr?, MidiOutCaps?) result = WinMM.Setup(lastWinMMDevice);
+                    handle = result.Item4;
+                    break;
+                case 3:
+                    XSynth.InitializeKDMAPIStream();
+                    break;
+            }
+        }
         public static void Submit(uint ev)
         {
             switch(engine){
@@ -71,6 +89,13 @@ namespace SharpMIDI
                 case 3:
                     XSynth.SendDirectData(ev);
                     break;
+            }
+            totalEvents++;
+            if((double)watch.ElapsedTicks / TimeSpan.TicksPerSecond > 0.0166666d)
+            {
+                Starter.form.label3.Text = "Played events: " + totalEvents;
+                Starter.form.label3.Update();
+                watch.Restart();
             }
         }
         public static void Close(){
