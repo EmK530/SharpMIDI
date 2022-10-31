@@ -14,12 +14,15 @@ namespace SharpMIDI
         public static void Start()
         {
             test.Start();
+            time = 0f;
+            last = 0;
             ticklen = (1 / (double)ppq) * (60 / bpm);
         }
 
         public static void Reset()
         {
             time = 0f;
+            last = 0;
         }
 
         static double GetElapsed()
