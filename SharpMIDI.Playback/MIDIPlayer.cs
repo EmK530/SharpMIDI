@@ -45,29 +45,23 @@ namespace SharpMIDI
             int[] eventProgress = new int[tracks.Length];
             int[] tempoProgress = new int[tracks.Length];
             System.Diagnostics.Stopwatch? watch = System.Diagnostics.Stopwatch.StartNew();
+            MIDIClock.Start();
             while (true)
             {
                 if (tick() - timeSinceLastPrint >= 0.01d)
                 {
-                    //PrintLine("FPS: " + (double)totalFrames / totalDelay);
                     Starter.form.label12.Text = "Frametime: " + Math.Round(((double)(totalDelay / TimeSpan.TicksPerSecond) / (double)totalFrames)*1000,5) + " ms";
                     Starter.form.label12.Update();
                     timeSinceLastPrint = tick();
                     totalFrames = 0;
                     totalDelay = 0;
-                    await Task.Delay(1);
                 }
                 long watchtime = watch.ElapsedTicks;
                 watch.Stop();
                 watch = System.Diagnostics.Stopwatch.StartNew();
                 double delay = (double)watchtime / TimeSpan.TicksPerSecond;
                 totalDelay += watchtime;
-                if (delay > 0.1)
-                {
-                    delay = 0.1;
-                }
-                if(!paused)
-                    clock += (delay) / ticklen;
+                clock = MIDIClock.GetTick();
                 int evs = 0;
                 int loops = -1;
                 foreach (MIDITrack i in tracks)
@@ -82,6 +76,7 @@ namespace SharpMIDI
                             if (ev.pos <= clock)
                             {
                                 double lastbpm = bpm;
+                                MIDIClock.SubmitBPM(ev.pos,ev.tempo);
                                 bpm = 60000000 / (double)ev.tempo;
                                 ticklen = (1 / (double)ppq) * (60 / bpm);
                                 tempoProgress[loops]++;
@@ -127,20 +122,20 @@ namespace SharpMIDI
                     }
                 }
                 totalFrames++;
-                //if (delay < 0.001)
-                //{
-                    //await Task.Delay(1); // sleep for timing accuracy
-                //}
                 if (evs == 0 || stopping)
                 {
                     if (stopping)
                         Sound.Reload();
                     Console.WriteLine("Playback finished...");
-                    //PrintLine("Ran out of events, ending playback...");
-                    //Sound.Close();
                     break;
                 }
             }
+            Starter.form.button4.Enabled = true;
+            Starter.form.button4.Update();
+            Starter.form.button5.Enabled = false;
+            Starter.form.button5.Update();
+            Starter.form.button6.Enabled = false;
+            Starter.form.button6.Update();
             return;
         }
     }
