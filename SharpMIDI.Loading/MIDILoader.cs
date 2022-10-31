@@ -30,7 +30,7 @@ namespace SharpMIDI
             throw new Exception();
         }
 
-        static async Task LoadArchive(uint ignoreover, int tracklimit)
+        static async Task LoadArchive(int tracklimit)
         {
             await Task.Run(async () =>
             {
@@ -41,7 +41,7 @@ namespace SharpMIDI
                     bool found = FindText("MTrk");
                     if (found)
                     {
-                        bool success = await ParseTrack(tk,ignoreover,realtk);
+                        bool success = await ParseTrack(tk,realtk);
                         tk++;
                         if (success)
                             realtk++;
@@ -61,7 +61,7 @@ namespace SharpMIDI
             });
         }
 
-        public static async void LoadPath(string path, int thres, uint ignoreover, int tracklimit)
+        public static async void LoadPath(string path, int thres, int tracklimit)
         {
             threshold = thres;
             midi = File.OpenRead(path);
@@ -74,7 +74,7 @@ namespace SharpMIDI
             uint tracks = ReadInt16();
             tks = (int)tracks;
             uint ppq = ReadInt16();
-            //MIDIClock.ppq = ppq;
+            MIDIClock.ppq = ppq;
             MIDIPlayer.ppq = ppq;
             Starter.form.label6.Text = "PPQ: "+ppq;
             Starter.form.label6.Update();
@@ -85,7 +85,7 @@ namespace SharpMIDI
             if (ppq < 0) { Crash("PPQ is negative"); }
             if (test.Item1)
             {
-                await LoadArchive(ignoreover,tracklimit);
+                await LoadArchive(tracklimit);
             } else
             {
                 midiStream = new StreamReader(path).BaseStream;
@@ -103,7 +103,7 @@ namespace SharpMIDI
                 Parallel.For(0, tks, (i) =>
                 {
                     {
-                        if (trackSizes[(int)i] <= ignoreover && loops <= tracklimit)
+                        if (loops <= tracklimit)
                         {
                             int bufSize = 2147483647;
                             if (bufSize > trackSizes[(int)i])
@@ -127,6 +127,7 @@ namespace SharpMIDI
                         } else
                         {
                             Console.WriteLine("Ignoring track #" + (i + 1) + " | Size " + trackSizes[(int)i]);
+                            MIDIPlayer.SubmitTrackForPlayback((int)i, new MIDITrack());
                         }
                     }
                 });
@@ -192,7 +193,7 @@ namespace SharpMIDI
                 return (unchecked(first + second), false);
             }
         }
-        static async Task<bool> ParseTrack(int tk, uint ignoreover, int realtk)
+        static async Task<bool> ParseTrack(int tk, int realtk)
         {
             MIDITrack track = new MIDITrack();
             List<int[]> skippedNotes = new List<int[]>();
@@ -203,12 +204,7 @@ namespace SharpMIDI
             float trackTime = 0f;
             pushback = -1;
             uint trackSize = ReadInt32();
-            if (trackSize > ignoreover)
             {
-                Console.WriteLine("Skipping track #" + (tk + 1) + " | Size " + trackSize);
-                Seek(trackSize);
-                return false;
-            } else {
                 Console.WriteLine("Loading track #" + (tk + 1) + " | Size " + trackSize);
                 byte prevEvent = 0;
                 float removedOffset = 0;
