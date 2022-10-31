@@ -45,6 +45,7 @@ namespace SharpMIDI
             int[] eventProgress = new int[tracks.Length];
             int[] tempoProgress = new int[tracks.Length];
             System.Diagnostics.Stopwatch? watch = System.Diagnostics.Stopwatch.StartNew();
+            MIDIClock.Reset();
             MIDIClock.Start();
             while (true)
             {
@@ -130,6 +131,7 @@ namespace SharpMIDI
                     break;
                 }
             }
+            MIDIClock.Reset();
             Starter.form.button4.Enabled = true;
             Starter.form.button4.Update();
             Starter.form.button5.Enabled = false;
