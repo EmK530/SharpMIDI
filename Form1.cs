@@ -31,12 +31,6 @@ namespace SharpMIDI
             {
                 comboBox1.Items.Add(i);
             }
-            /*
-            System.Windows.Forms.Timer tmr = new System.Windows.Forms.Timer();
-            tmr.Interval = 10;
-            tmr.Tick += UpdateMemory;
-            tmr.Start();
-            */
             Task.Run(() => UpdateMemory());
         }
 
@@ -65,7 +59,7 @@ namespace SharpMIDI
             {
                 button1.Enabled = false;
                 openFileDialog.Filter = "MIDI file (*.mid)|*.mid|7-Zip Archive (*.7z)|*.7z|.gz Archive (*.gz)|*.gz|.rar Archive (*.rar)|*.rar|.tar Archive (*.tar)|*.tar|.xz Archive (*.xz)|*.xz|.zip Archive (*.zip)|*.zip";
-                openFileDialog.FilterIndex = 2;
+                openFileDialog.FilterIndex = 1;
                 openFileDialog.RestoreDirectory = true;
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
@@ -89,6 +83,11 @@ namespace SharpMIDI
             ToggleSynthSettings(true);
         }
 
+        private async Task PlayMIDI()
+        {
+            await MIDIPlayer.StartPlayback();
+        }
+
         private async void button4_Click(object sender, EventArgs e)
         {
             button4.Enabled = false;
@@ -96,13 +95,7 @@ namespace SharpMIDI
             button6.Enabled = true;
             button5.Enabled = true;
             button5.Update();
-            await MIDIPlayer.StartPlayback();
-            button4.Enabled = true;
-            button4.Update();
-            button5.Enabled = false;
-            button5.Update();
-            button6.Enabled = false;
-            button6.Update();
+            Task.Run(() => PlayMIDI());
         }
 
         private void button7_Click(object sender, EventArgs e)
@@ -120,10 +113,12 @@ namespace SharpMIDI
         {
             if (!paused)
             {
+                MIDIClock.Stop();
                 button6.Text = "Play";
                 button6.Update();
             } else
             {
+                MIDIClock.Resume();
                 button6.Text = "Pause";
                 button6.Update();
             }
@@ -140,6 +135,11 @@ namespace SharpMIDI
             button6.Enabled = false;
             button6.Update();
             MIDIPlayer.stopping = true;
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            MIDIClock.throttle = checkBox1.Checked;
         }
     }
 }
