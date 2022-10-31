@@ -51,14 +51,12 @@ namespace SharpMIDI
             this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
-            this.label14 = new System.Windows.Forms.Label();
-            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
             this.button7 = new System.Windows.Forms.Button();
             this.label15 = new System.Windows.Forms.Label();
             this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             this.SuspendLayout();
             // 
@@ -70,7 +68,7 @@ namespace SharpMIDI
             this.Title.Name = "Title";
             this.Title.Size = new System.Drawing.Size(496, 40);
             this.Title.TabIndex = 0;
-            this.Title.Text = "SharpMIDI v3.0.0";
+            this.Title.Text = "SharpMIDI v3.1.0";
             // 
             // button1
             // 
@@ -316,39 +314,10 @@ namespace SharpMIDI
             this.button6.UseVisualStyleBackColor = true;
             this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
-            // label14
-            // 
-            this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label14.Location = new System.Drawing.Point(373, 231);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(123, 16);
-            this.label14.TabIndex = 33;
-            this.label14.Text = "Ignore tracks over size";
-            this.label14.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // numericUpDown2
-            // 
-            this.numericUpDown2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.numericUpDown2.Location = new System.Drawing.Point(373, 250);
-            this.numericUpDown2.Maximum = new decimal(new int[] {
-            -1,
-            0,
-            0,
-            0});
-            this.numericUpDown2.Name = "numericUpDown2";
-            this.numericUpDown2.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.numericUpDown2.Size = new System.Drawing.Size(123, 23);
-            this.numericUpDown2.TabIndex = 30;
-            this.numericUpDown2.Value = new decimal(new int[] {
-            -1,
-            0,
-            0,
-            0});
-            // 
             // button7
             // 
             this.button7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button7.Location = new System.Drawing.Point(375, 324);
+            this.button7.Location = new System.Drawing.Point(375, 279);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(121, 23);
             this.button7.TabIndex = 31;
@@ -359,7 +328,7 @@ namespace SharpMIDI
             // label15
             // 
             this.label15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label15.Location = new System.Drawing.Point(435, 276);
+            this.label15.Location = new System.Drawing.Point(435, 231);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(61, 16);
             this.label15.TabIndex = 32;
@@ -369,7 +338,7 @@ namespace SharpMIDI
             // numericUpDown3
             // 
             this.numericUpDown3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.numericUpDown3.Location = new System.Drawing.Point(435, 295);
+            this.numericUpDown3.Location = new System.Drawing.Point(435, 250);
             this.numericUpDown3.Maximum = new decimal(new int[] {
             65535,
             0,
@@ -400,16 +369,28 @@ namespace SharpMIDI
             this.label4.TabIndex = 5;
             this.label4.Text = "Duration: ?:??";
             // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Checked = true;
+            this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox1.Location = new System.Drawing.Point(0, 250);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(153, 19);
+            this.checkBox1.TabIndex = 35;
+            this.checkBox1.Text = "Throttle playback on lag";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(496, 410);
+            this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.numericUpDown3);
             this.Controls.Add(this.label15);
             this.Controls.Add(this.button7);
-            this.Controls.Add(this.numericUpDown2);
-            this.Controls.Add(this.label14);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);
@@ -438,7 +419,6 @@ namespace SharpMIDI
             this.Name = "Form1";
             this.Text = "SharpMIDI GUI";
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -470,11 +450,10 @@ namespace SharpMIDI
         public Button button4;
         public Button button5;
         public Button button6;
-        private Label label14;
-        public NumericUpDown numericUpDown2;
         public Button button7;
         private Label label15;
         public NumericUpDown numericUpDown3;
         public Label label4;
+        private CheckBox checkBox1;
     }
 }
