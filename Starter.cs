@@ -21,7 +21,7 @@ namespace SharpMIDI
             form.label2.Text = "Status: Loading";
             form.label1.Update();
             form.label2.Update();
-            MIDILoader.LoadPath(str,(int)form.numericUpDown1.Value,(uint)form.numericUpDown2.Value,(int)form.numericUpDown3.Value);
+            MIDILoader.LoadPath(str,(int)form.numericUpDown1.Value,(int)form.numericUpDown3.Value);
             return;
         }
     }
