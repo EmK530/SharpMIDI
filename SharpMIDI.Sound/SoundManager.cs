@@ -65,14 +65,14 @@ namespace SharpMIDI
             {
                 case 1:
                     KDMAPI.InitializeKDMAPIStream();
-                    break;
+                    return;
                 case 2:
                     (bool, string, string, IntPtr?, MidiOutCaps?) result = WinMM.Setup(lastWinMMDevice);
                     handle = result.Item4;
-                    break;
+                    return;
                 case 3:
                     XSynth.InitializeKDMAPIStream();
-                    break;
+                    return;
             }
         }
         public static void Submit(uint ev)
@@ -102,15 +102,15 @@ namespace SharpMIDI
             switch(engine){
                 case 1:
                     KDMAPI.TerminateKDMAPIStream();
-                    break;
+                    return;
                 case 2:
                     if(handle!=null){
                         WinMM.midiOutClose((IntPtr)handle);
                     }
-                    break;
+                    return;
                 case 3:
                     XSynth.TerminateKDMAPIStream();
-                    break;
+                    return;
             }
         }
     }
