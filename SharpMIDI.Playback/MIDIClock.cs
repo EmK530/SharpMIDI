@@ -17,6 +17,11 @@ namespace SharpMIDI
             ticklen = (1 / (double)ppq) * (60 / bpm);
         }
 
+        public static void Reset()
+        {
+            time = 0f;
+        }
+
         static double GetElapsed()
         {
             double temp = ((double)test.ElapsedTicks / TimeSpan.TicksPerSecond);
