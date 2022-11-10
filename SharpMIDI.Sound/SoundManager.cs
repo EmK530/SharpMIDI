@@ -78,6 +78,9 @@ namespace SharpMIDI
         public static void Submit(uint ev)
         {
             switch(engine){
+                case 3:
+                    XSynth.SendDirectData(ev);
+                    break;
                 case 1:
                     KDMAPI.SendDirectData(ev);
                     break;
@@ -86,17 +89,8 @@ namespace SharpMIDI
                         WinMM.midiOutShortMsg((IntPtr)handle,ev);
                     }
                     break;
-                case 3:
-                    XSynth.SendDirectData(ev);
-                    break;
             }
             totalEvents++;
-            if((double)watch.ElapsedTicks / TimeSpan.TicksPerSecond > 0.0166666d)
-            {
-                Starter.form.label3.Text = "Played events: " + totalEvents;
-                Starter.form.label3.Update();
-                watch.Restart();
-            }
         }
         public static void Close(){
             switch(engine){
