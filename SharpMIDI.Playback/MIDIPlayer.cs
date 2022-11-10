@@ -105,12 +105,11 @@ namespace SharpMIDI
                                     }
                                 }
                             }
-                            int eTemp = eP[loops];
                             while (true)
                             {
-                                if (eTemp < i.eventAmount)
+                                if (eP[loops] < i.eventAmount)
                                 {
-                                    SynthEvent ev = i.synthEvents[eTemp];
+                                    SynthEvent ev = i.synthEvents[eP[loops]];
                                     evs++;
                                     if (tP[loops] + ev.pos <= clock)
                                     {
