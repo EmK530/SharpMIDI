@@ -68,7 +68,7 @@ namespace SharpMIDI
             this.Title.Name = "Title";
             this.Title.Size = new System.Drawing.Size(496, 40);
             this.Title.TabIndex = 0;
-            this.Title.Text = "SharpMIDI v3.1.0";
+            this.Title.Text = "SharpMIDI v3.1.1";
             // 
             // button1
             // 
