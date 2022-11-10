@@ -213,21 +213,6 @@ namespace SharpMIDI
                 {
                     long test = ReadVariableLen();
                     trackTime += test;
-                    if (test > 4294967295)
-                    {
-                        Crash("Variable length offset overflowed the uint variable type, report this to EmK530!");
-                    }
-                    (uint, bool) addition = AddNumbers((uint)test, (uint)removedOffset);
-                    uint timeOptimize = addition.Item1;
-                    if (addition.Item2)
-                    {
-                        //PrintLine("Resolved uint overflow!");
-                        track.synthEvents.Add(new SynthEvent()
-                        {
-                            pos = 4294967295,
-                            val = 0
-                        });
-                    }
                     byte readEvent = (byte)midi.ReadByte();
                     if (readEvent < 0x80)
                     {
@@ -252,7 +237,7 @@ namespace SharpMIDI
                                         track.eventAmount++;
                                         track.synthEvents.Add(new SynthEvent()
                                         {
-                                            pos = timeOptimize,
+                                            pos = test+removedOffset,
                                             val = readEvent | (note << 8) | (vel << 16)
                                         });
                                         track.loadedNotes++;
@@ -271,7 +256,7 @@ namespace SharpMIDI
                                         byte customEvent = (byte)(readEvent - 0b00010000);
                                         track.synthEvents.Add(new SynthEvent()
                                         {
-                                            pos = timeOptimize,
+                                            pos = test + removedOffset,
                                             val = customEvent | (note << 8) | (vel << 16)
                                         });
                                         track.eventAmount++;
@@ -295,7 +280,7 @@ namespace SharpMIDI
                                 {
                                     track.synthEvents.Add(new SynthEvent()
                                     {
-                                        pos = timeOptimize,
+                                        pos = test + removedOffset,
                                         val = readEvent | (note << 8) | (vel << 16)
                                     });
                                     track.eventAmount++;
@@ -315,7 +300,7 @@ namespace SharpMIDI
                                 byte vel = PushbackRead();
                                 track.synthEvents.Add(new SynthEvent()
                                 {
-                                    pos = timeOptimize,
+                                    pos = test + removedOffset,
                                     val = readEvent | (note << 8) | (vel << 16)
                                 });
                                 track.eventAmount++;
@@ -328,7 +313,7 @@ namespace SharpMIDI
                                 byte program = PushbackRead();
                                 track.synthEvents.Add(new SynthEvent()
                                 {
-                                    pos = timeOptimize,
+                                    pos = test + removedOffset,
                                     val = readEvent | (program << 8)
                                 });
                                 track.eventAmount++;
@@ -341,7 +326,7 @@ namespace SharpMIDI
                                 byte pressure = PushbackRead();
                                 track.synthEvents.Add(new SynthEvent()
                                 {
-                                    pos = timeOptimize,
+                                    pos = test + removedOffset,
                                     val = readEvent | (pressure << 8)
                                 });
                                 track.eventAmount++;
@@ -355,7 +340,7 @@ namespace SharpMIDI
                                 byte m = PushbackRead();
                                 track.synthEvents.Add(new SynthEvent()
                                 {
-                                    pos = timeOptimize,
+                                    pos = test + removedOffset,
                                     val = readEvent | (l << 8) | (m << 16)
                                 });
                                 track.eventAmount++;
@@ -369,7 +354,7 @@ namespace SharpMIDI
                                 byte vv = PushbackRead();
                                 track.synthEvents.Add(new SynthEvent()
                                 {
-                                    pos = timeOptimize,
+                                    pos = test + removedOffset,
                                     val = readEvent | (cc << 8) | (vv << 16)
                                 });
                                 track.eventAmount++;
