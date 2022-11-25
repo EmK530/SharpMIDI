@@ -1,4 +1,4 @@
-namespace SharpMIDI
+﻿namespace SharpMIDI
 {
     class MIDIPlayer
     {
@@ -7,10 +7,28 @@ namespace SharpMIDI
         {
             tracks = new MIDITrack[count];
         }
-        static long totalNotes = 0;
-        static long loadedNotes = 0;
+        static double totalNotes = 0;
+        static double loadedNotes = 0;
+        static double eventCount = 0;
+        static double maxTick = 0;
         public static uint ppq = 0;
         public static bool paused = false;
+        public static void ClearEntries()
+        {
+            ppq = 0;
+            totalNotes = 0;
+            loadedNotes = 0;
+            eventCount = 0;
+            maxTick = 0;
+            foreach(MIDITrack i in tracks)
+            {
+                i.synthEvents.Clear();
+                i.tempos.Clear();
+            }
+            Array.Clear(tracks);
+            tracks = new MIDITrack[0];
+            GC.Collect();
+        }
         public static void SubmitTrackForPlayback(int index, MIDITrack track)
         {
             if (tracks.Length <= index)
@@ -20,7 +38,12 @@ namespace SharpMIDI
             Starter.form.label7.Text = "Memory Usage: " + Form1.toMemoryText(GC.GetTotalMemory(false)) + " (May be inaccurate)";
             Starter.form.label7.Update();
             loadedNotes += track.loadedNotes;
+            eventCount += track.eventAmount;
             totalNotes += track.totalNotes;
+            if(track.maxTick > maxTick)
+            {
+                maxTick = track.maxTick;
+            }
             Starter.form.label5.Text = "Notes: " + loadedNotes + " / " + totalNotes;
             Starter.form.label5.Update();
             tracks[index] = track;
@@ -36,16 +59,17 @@ namespace SharpMIDI
         {
             stopping = false;
             double bpm = 120;
-            double ticklen = (1 / (double)ppq) * (60 / bpm);
             double clock = 0;
             double timeSinceLastPrint = tick();
             int totalFrames = 0;
             double totalDelay = 0;
+            double recentDelay = 0;
             float[] trackPositions = new float[tracks.Length];
             int[] eventProgress = new int[tracks.Length];
             int[] tempoProgress = new int[tracks.Length];
             System.Diagnostics.Stopwatch? watch = System.Diagnostics.Stopwatch.StartNew();
             MIDIClock.Reset();
+            Sound.totalEvents = 0;
             MIDIClock.Start();
             fixed (int* eP = eventProgress)
             {
@@ -53,12 +77,19 @@ namespace SharpMIDI
                 {
                     while (true)
                     {
+                        clock = MIDIClock.GetTick();
                         if (tick() - timeSinceLastPrint >= 0.01d)
                         {
-                            Starter.form.label12.Text = "Frametime: " + Math.Round(((double)(totalDelay / TimeSpan.TicksPerSecond) / (double)totalFrames) * 1000, 5) + " ms";
-                            Starter.form.label12.Update();
-                            Starter.form.label3.Text = "Played events: " + Sound.totalEvents;
-                            Starter.form.label3.Update();
+                            Starter.form.label12.Text = "FPS \u2248 " + Math.Round(1/((double)(totalDelay / TimeSpan.TicksPerSecond) / (double)totalFrames), 5);
+                            //Starter.form.label12.Update();
+                            Starter.form.label14.Text = "Tick: " + Math.Round(clock,0) + " / " + maxTick;
+                            //Starter.form.label14.Update();
+                            Starter.form.label16.Text = "TPS: " + Math.Round(1/MIDIClock.ticklen,5);
+                            //Starter.form.label16.Update();
+                            Starter.form.label17.Text = "BPM: " + Math.Round(bpm, 5);
+                            //Starter.form.label17.Update();
+                            Starter.form.label3.Text = "Played events: " + Sound.totalEvents + " / " + eventCount;
+                            //Starter.form.label3.Update();
                             timeSinceLastPrint = tick();
                             totalFrames = 0;
                             totalDelay = 0;
@@ -68,7 +99,7 @@ namespace SharpMIDI
                         watch = System.Diagnostics.Stopwatch.StartNew();
                         double delay = (double)watchtime / TimeSpan.TicksPerSecond;
                         totalDelay += watchtime;
-                        clock = MIDIClock.GetTick();
+                        recentDelay = watchtime;
                         int evs = 0;
                         int loops = -1;
                         foreach (MIDITrack i in tracks)
@@ -84,15 +115,9 @@ namespace SharpMIDI
                                         evs++;
                                         if (ev.pos <= clock)
                                         {
-                                            double lastbpm = bpm;
                                             MIDIClock.SubmitBPM(ev.pos, ev.tempo);
                                             bpm = 60000000 / (double)ev.tempo;
-                                            ticklen = (1 / (double)ppq) * (60 / bpm);
                                             tempoProgress[loops]++;
-                                            if (bpm != lastbpm)
-                                            {
-                                                //PrintLine("Tempo event, new BPM: " + bpm);
-                                            }
                                         }
                                         else
                                         {
@@ -137,6 +162,8 @@ namespace SharpMIDI
                             break;
                         }
                     }
+                    Starter.form.label14.Text = "Tick: " + Math.Round(clock, 0) + " / " + maxTick;
+                    Starter.form.label3.Text = "Played events: " + Sound.totalEvents + " / " + eventCount;
                     MIDIClock.Reset();
                     Starter.form.button4.Enabled = true;
                     Starter.form.button4.Update();

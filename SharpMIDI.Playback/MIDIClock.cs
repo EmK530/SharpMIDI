@@ -5,17 +5,16 @@ namespace SharpMIDI
     class MIDIClock
     {
         static double time = 0f;
-        static double bpm = 120f;
+        static double bpm = 120d;
         public static double ppq = 0;
-        static double ticklen;
+        public static double ticklen;
         static Stopwatch test = new Stopwatch();
         static double last = 0;
         public static bool throttle = true;
+        static double timeLost = 0;
         public static void Start()
         {
             test.Start();
-            time = 0f;
-            last = 0;
             ticklen = (1 / (double)ppq) * (60 / bpm);
         }
 
@@ -23,6 +22,8 @@ namespace SharpMIDI
         {
             time = 0f;
             last = 0;
+            timeLost = 0f;
+            test.Reset();
         }
 
         static double GetElapsed()
@@ -32,13 +33,13 @@ namespace SharpMIDI
             {
                 if (temp-last > 0.0166666d)
                 {
-                    temp = last + 0.0166666d;
+                    timeLost += (temp - last) - 0.0166666d;
                     last = temp;
-                    return temp;
+                    return temp-timeLost;
                 }
             }
             last = temp;
-            return temp;
+            return temp-timeLost;
         }
 
         public static void SubmitBPM(double p, double b)
@@ -46,6 +47,7 @@ namespace SharpMIDI
             double remainder = (time - p);
             time = p + (GetElapsed() / ticklen);
             bpm = 60000000 / b;
+            timeLost = 0d;
             Console.WriteLine("New BPM: " + bpm);
             ticklen = (1 / (double)ppq) * (60 / bpm);
             time += remainder;
