@@ -64,6 +64,7 @@ namespace SharpMIDI
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     Starter.SubmitMIDIPath(openFileDialog.FileName);
+                    button2.Enabled = true;
                 } else
                 {
                     button1.Enabled = true;
@@ -79,17 +80,19 @@ namespace SharpMIDI
             Console.WriteLine("Loading sound engine ID " + soundEngine);
             ToggleSynthSettings(false);
             button1.Enabled = Sound.Init(soundEngine,winMMdev) && !Starter.midiLoaded;
-            label13.Visible = !button1.Enabled;
+            label13.Visible = !button1.Enabled && !Starter.midiLoaded;
             ToggleSynthSettings(true);
         }
 
         private async Task PlayMIDI()
         {
             await MIDIPlayer.StartPlayback();
+            button2.Enabled = true;
         }
 
         private async void button4_Click(object sender, EventArgs e)
         {
+            button2.Enabled = false;
             button4.Enabled = false;
             button4.Update();
             button6.Enabled = true;
@@ -140,6 +143,40 @@ namespace SharpMIDI
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             MIDIClock.throttle = checkBox1.Checked;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (Starter.midiLoaded)
+            {
+                label1.Text = "Selected MIDI: (none)";
+                label2.Text = "Status: Not Loaded";
+                label5.Text = "Notes: ??? / ???";
+                label6.Text = "PPQ: ???";
+                label10.Text = "Loaded tracks: 0 / ?????";
+                label3.Text = "Played events: 0 / 0";
+                label12.Text = "FPS \u2248 N/A";
+                label14.Text = "Tick: 0";
+                label16.Text = "TPS: N/A";
+                label17.Text = "BPM: 120";
+                button4.Enabled = false;
+                button5.Enabled = false;
+                button6.Enabled = false;
+                button2.Enabled = false;
+                button4.Update();
+                button5.Update();
+                button6.Update();
+                button2.Update();
+                MIDIPlayer.ClearEntries();
+                MIDILoader.ResetVariables();
+                Starter.midiLoaded = false;
+                button1.Enabled = true;
+                button2.Enabled = false;
+            } else
+            {
+                button1.Enabled = true;
+                button2.Enabled = false;
+            }
         }
     }
 }

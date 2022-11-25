@@ -1,4 +1,4 @@
-namespace SharpMIDI
+﻿namespace SharpMIDI
 {
     partial class Form1
     {
@@ -54,8 +54,11 @@ namespace SharpMIDI
             this.button7 = new System.Windows.Forms.Button();
             this.label15 = new System.Windows.Forms.Label();
             this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
-            this.label4 = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.button2 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             this.SuspendLayout();
@@ -68,7 +71,7 @@ namespace SharpMIDI
             this.Title.Name = "Title";
             this.Title.Size = new System.Drawing.Size(496, 40);
             this.Title.TabIndex = 0;
-            this.Title.Text = "SharpMIDI v3.1.1";
+            this.Title.Text = "SharpMIDI v3.1.2";
             // 
             // button1
             // 
@@ -106,7 +109,7 @@ namespace SharpMIDI
             // 
             this.label5.Dock = System.Windows.Forms.DockStyle.Top;
             this.label5.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label5.Location = new System.Drawing.Point(0, 85);
+            this.label5.Location = new System.Drawing.Point(0, 70);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(496, 15);
             this.label5.TabIndex = 6;
@@ -116,7 +119,7 @@ namespace SharpMIDI
             // 
             this.label6.Dock = System.Windows.Forms.DockStyle.Top;
             this.label6.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label6.Location = new System.Drawing.Point(0, 100);
+            this.label6.Location = new System.Drawing.Point(0, 85);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(496, 15);
             this.label6.TabIndex = 7;
@@ -126,7 +129,7 @@ namespace SharpMIDI
             // 
             this.label7.Dock = System.Windows.Forms.DockStyle.Top;
             this.label7.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label7.Location = new System.Drawing.Point(0, 115);
+            this.label7.Location = new System.Drawing.Point(0, 100);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(496, 15);
             this.label7.TabIndex = 8;
@@ -195,9 +198,9 @@ namespace SharpMIDI
             // label10
             // 
             this.label10.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label10.Location = new System.Drawing.Point(0, 130);
+            this.label10.Location = new System.Drawing.Point(0, 115);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(181, 15);
+            this.label10.Size = new System.Drawing.Size(211, 15);
             this.label10.TabIndex = 16;
             this.label10.Text = "Loaded tracks: 0 / ?????";
             // 
@@ -266,25 +269,25 @@ namespace SharpMIDI
             // label3
             // 
             this.label3.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label3.Location = new System.Drawing.Point(0, 160);
+            this.label3.Location = new System.Drawing.Point(0, 156);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(181, 15);
+            this.label3.Size = new System.Drawing.Size(302, 15);
             this.label3.TabIndex = 25;
-            this.label3.Text = "Played events: 0";
+            this.label3.Text = "Played events: 0 / 0";
             // 
             // label12
             // 
             this.label12.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label12.Location = new System.Drawing.Point(0, 175);
+            this.label12.Location = new System.Drawing.Point(0, 141);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(261, 15);
+            this.label12.Size = new System.Drawing.Size(211, 15);
             this.label12.TabIndex = 26;
-            this.label12.Text = "Frametime: N/A ms";
+            this.label12.Text = "FPS ≈ N/A";
             // 
             // button4
             // 
             this.button4.Enabled = false;
-            this.button4.Location = new System.Drawing.Point(0, 193);
+            this.button4.Location = new System.Drawing.Point(0, 219);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(46, 23);
             this.button4.TabIndex = 27;
@@ -295,7 +298,7 @@ namespace SharpMIDI
             // button5
             // 
             this.button5.Enabled = false;
-            this.button5.Location = new System.Drawing.Point(0, 222);
+            this.button5.Location = new System.Drawing.Point(0, 248);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(46, 23);
             this.button5.TabIndex = 28;
@@ -306,7 +309,7 @@ namespace SharpMIDI
             // button6
             // 
             this.button6.Enabled = false;
-            this.button6.Location = new System.Drawing.Point(52, 222);
+            this.button6.Location = new System.Drawing.Point(52, 248);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(46, 23);
             this.button6.TabIndex = 29;
@@ -359,22 +362,12 @@ namespace SharpMIDI
             0,
             0});
             // 
-            // label4
-            // 
-            this.label4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label4.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label4.Location = new System.Drawing.Point(0, 70);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(496, 15);
-            this.label4.TabIndex = 5;
-            this.label4.Text = "Duration: ?:??";
-            // 
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
             this.checkBox1.Checked = true;
             this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox1.Location = new System.Drawing.Point(0, 250);
+            this.checkBox1.Location = new System.Drawing.Point(0, 277);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(153, 19);
             this.checkBox1.TabIndex = 35;
@@ -382,11 +375,54 @@ namespace SharpMIDI
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
+            // label14
+            // 
+            this.label14.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label14.Location = new System.Drawing.Point(0, 171);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(261, 15);
+            this.label14.TabIndex = 36;
+            this.label14.Text = "Tick: 0";
+            // 
+            // label16
+            // 
+            this.label16.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label16.Location = new System.Drawing.Point(0, 186);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(261, 15);
+            this.label16.TabIndex = 37;
+            this.label16.Text = "TPS: N/A";
+            // 
+            // label17
+            // 
+            this.label17.Font = new System.Drawing.Font("Segoe MDL2 Assets", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label17.Location = new System.Drawing.Point(0, 201);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(261, 15);
+            this.label17.TabIndex = 38;
+            this.label17.Text = "BPM: 120";
+            // 
+            // button2
+            // 
+            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button2.Enabled = false;
+            this.button2.Location = new System.Drawing.Point(291, 0);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(103, 25);
+            this.button2.TabIndex = 39;
+            this.button2.Text = "Unload MIDI";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(496, 410);
+            this.Controls.Add(this.button2);
+            this.Controls.Add(this.label17);
+            this.Controls.Add(this.label16);
+            this.Controls.Add(this.label14);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.numericUpDown3);
             this.Controls.Add(this.label15);
@@ -410,7 +446,6 @@ namespace SharpMIDI
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
-            this.Controls.Add(this.label4);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button1);
@@ -453,7 +488,10 @@ namespace SharpMIDI
         public Button button7;
         private Label label15;
         public NumericUpDown numericUpDown3;
-        public Label label4;
         private CheckBox checkBox1;
+        public Label label14;
+        public Label label16;
+        public Label label17;
+        private Button button2;
     }
 }
