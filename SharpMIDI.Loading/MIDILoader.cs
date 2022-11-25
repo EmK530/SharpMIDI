@@ -29,7 +29,17 @@ namespace SharpMIDI
             MessageBox.Show(test);
             throw new Exception();
         }
-
+        public static void ResetVariables()
+        {
+            totalNotes = 0;
+            loadedNotes = 0;
+            tks = 0;
+            loadedTracks = 0;
+            totalSize = 0;
+            pushback = -1;
+            trackLocations = new List<long>();
+            trackSizes = new List<uint>();
+        }
         static async Task LoadArchive(int tracklimit)
         {
             await Task.Run(async () =>
@@ -78,7 +88,7 @@ namespace SharpMIDI
             MIDIPlayer.ppq = ppq;
             Starter.form.label6.Text = "PPQ: "+ppq;
             Starter.form.label6.Update();
-            Starter.form.label10.Text = "Loaded tracks: 0 / " + tracks;
+            Starter.form.label10.Text = "Loaded tracks: 0 / ??? ("+tracks+")";
             Starter.form.label10.Update();
             if (size != 6) { Crash("Incorrect header size of " + size); }
             if (fmt == 2) { Crash("MIDI format 2 unsupported"); }
@@ -95,9 +105,13 @@ namespace SharpMIDI
                 while (midiStream.Position < midiStream.Length)
                 {
                     bool success = IndexTrack();
+                    Starter.form.label10.Text = "Loaded tracks: 0 / "+tks+" (" + tracks + ")";
+                    Starter.form.label10.Update();
                     if (!success) { break; }
                 }
                 MIDIPlayer.SubmitTrackCount(tks);
+                Starter.form.label10.Text = "Loaded tracks: 0 / " + tks;
+                Starter.form.label10.Update();
                 midiStream.Position += 1;
                 int loops = 0;
                 Parallel.For(0, tks, (i) =>
@@ -413,6 +427,7 @@ namespace SharpMIDI
                 totalNotes += totalNotes;
                 loadedNotes += loadedNotes;
                 loadedTracks++;
+                track.maxTick = trackTime;
                 MIDIPlayer.SubmitTrackForPlayback(realtk, track);
                 return true;
             }

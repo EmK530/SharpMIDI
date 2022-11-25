@@ -16,6 +16,7 @@ namespace SharpMIDI
         public long tempoAmount = 0;
         public long loadedNotes = 0;
         public long totalNotes = 0;
+        public float maxTick = 0;
     }
 
     public unsafe class FastTrack : IDisposable
@@ -242,6 +243,7 @@ namespace SharpMIDI
                     break;
                 }
             }
+            track.maxTick = trackTime;
         }
         long ReadVariableLen()
         {
