@@ -147,6 +147,7 @@ namespace SharpMIDI
                 });
                 Starter.form.label10.Text = "Loaded tracks: " + MIDIPlayer.tracks.Length + " / " + MIDILoader.tks;
                 Starter.form.label10.Update();
+                midiStream.Close();
             }
             Starter.form.label2.Text = "Status: Loaded";
             Starter.form.label2.Update();
@@ -154,6 +155,7 @@ namespace SharpMIDI
             Starter.form.button4.Enabled = true;
             Starter.form.button4.Update();
             Console.WriteLine("MIDI Loaded");
+            midi.Close();
             //MIDIPlayer.StartPlayback(ppq);
         }
 
