@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+	  <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+      <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	  <OutputType>Exe</OutputType>
+	  <RootNamespace>SharpMIDI</RootNamespace>
+	  <AssemblyName>SharpMIDI</AssemblyName>
+	  <FileAlignment>512</FileAlignment>
+      <TargetFramework>net6.0-windows</TargetFramework>
+	  <UseWindowsForms>true</UseWindowsForms>
+      <ImplicitUsings>enable</ImplicitUsings>
+      <Nullable>enable</Nullable>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <Optimize>false</Optimize>
+	  <RemoveIntegerChecks>true</RemoveIntegerChecks>
+	  <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+	  <StartupObject>SharpMIDI.Starter</StartupObject>
+	  <PublishSingleFile>false</PublishSingleFile>
+	  <PublishTrimmed>false</PublishTrimmed>
+	  <PublishReadyToRun>false</PublishReadyToRun>
+	  <_SuppressWinFormsTrimError>true</_SuppressWinFormsTrimError>
+  </PropertyGroup>
+  <ItemGroup>
+	  <PackageReference Include="ImGui.NET" Version="1.89.2" />
+      <PackageReference Include="OpenTK" Version="4.7.5" />
+      <PackageReference Include="SharpCompress" Version="0.32.2" />
+  </ItemGroup>
+</Project>
