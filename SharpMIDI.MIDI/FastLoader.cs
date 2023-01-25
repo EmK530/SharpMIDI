@@ -13,6 +13,7 @@ namespace SharpMIDI
         {
             TopLoader.LoadStatus = "Indexing tracks...";
             ms = new StreamReader(path).BaseStream;
+            long size = ms.Length;
             MIDIData.realTracks = 0;
             ms.Seek(8, SeekOrigin.Begin);
             MIDIData.format = ms.ReadByte() * 256 + ms.ReadByte();
@@ -26,15 +27,16 @@ namespace SharpMIDI
                 TopLoader.LoadProgress = (float)MIDIData.realTracks / (float)MIDIData.fakeTracks;
             }
             Console.WriteLine("Indexed " + MIDIData.realTracks + " tracks.");
-            TopLoader.LoadStatus = "Parsing tracks...";
+            TopLoader.LoadStatus = "Parsing MIDI...";
             TopLoader.LoadProgress = 0f;
-            int LoadedTracks = 0;
+            long loadedSize = 0;
             int tks = MIDIData.realTracks;
             for(int i = 0; i < tks; i++)
             {
                 MIDIData.synthEvents.Add(new List<SynthEvent>());
             }
             Parallel.For(0, tks, (i) =>
+            //for(int i = 0; i < tks; i++)
             {
                 {
                     int bufSize = 2000000000;
@@ -44,11 +46,18 @@ namespace SharpMIDI
                     }
                     totalSize += trackSizes[(int)i];
                     Console.WriteLine("Track " + (i + 1) + " | Size " + trackSizes[(int)i]);
+                    loadedSize += trackSizes[(int)i];
                     FastTrack temp = new FastTrack(new BufferByteReader(ms, bufSize, trackPositions[(int)i], trackSizes[(int)i]));
-                    temp.ParseTrack(0,i);
+                    temp.ParseTrack(10,i);
+                    MIDIData.notes += temp.notes;
+                    MIDIData.maxNotes += temp.maxNotes;
+                    MIDIData.events += temp.evs;
+                    if (temp.trackTime > MIDIData.maxTick)
+                    {
+                        MIDIData.maxTick = temp.trackTime;
+                    }
                     temp.Dispose();
-                    LoadedTracks++;
-                    TopLoader.LoadProgress = (float)LoadedTracks / (float)MIDIData.realTracks;
+                    TopLoader.LoadProgress = (float)loadedSize / (float)size;
                     if (totalSize > 134217728)
                     {
                         totalSize = 0;
