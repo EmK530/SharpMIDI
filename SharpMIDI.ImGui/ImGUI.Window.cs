@@ -59,7 +59,7 @@ namespace SharpMIDI
             {
                 if (ImGui.BeginMenu("File"))
                 {
-                    if (ImGui.MenuItem("Open MIDI"))
+                    if (ImGui.MenuItem("Open MIDI",!TopLoader.MIDILoaded))
                     {
                         TopLoader.OpenDialog();
                         Task.Run(() => TopLoader.StartLoading());
@@ -95,11 +95,11 @@ namespace SharpMIDI
                         }
                         ImGui.EndMenu();
                     }
-                    if (ImGui.MenuItem("Unload Synth",Sound.synthLoaded))
+                    if (ImGui.MenuItem("Unload Synth",Sound.synthLoaded&&!MIDIClock.test.IsRunning&&!MIDIPlayer.playing))
                     {
                         Sound.Close();
                     }
-                    if (ImGui.MenuItem("Reload Synth",Sound.synthLoaded))
+                    if (ImGui.MenuItem("Reload Synth",Sound.synthLoaded&&!MIDIClock.test.IsRunning&&!MIDIPlayer.playing))
                     {
                         Sound.Reload();
                     }
