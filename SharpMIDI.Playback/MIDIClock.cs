@@ -47,7 +47,7 @@ namespace SharpMIDI
             time = p + (GetElapsed() / ticklen);
             bpm = 60000000 / b;
             timeLost = 0d;
-            Console.WriteLine("New BPM: " + bpm);
+            //Console.WriteLine("New BPM: " + bpm);
             ticklen = (1 / (double)MIDIData.ppq) * (60 / bpm);
             time += remainder;
             test.Restart();
