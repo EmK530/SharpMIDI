@@ -5,23 +5,14 @@ namespace SharpMIDI
         public static double FPS = 0d;
         public static double curTick = 0d;
         public static double TPS = 0d;
-        static double tick()
-        {
-            TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
-            double secondsSinceEpoch = t.TotalSeconds;
-            return secondsSinceEpoch;
-        }
+        public static bool limitFPS = false;
         public static bool stopping = false;
         public static bool playing = false;
         public static unsafe async Task StartPlayback()
         {
             stopping = false;
-            double bpm = 120;
             long clock = 0;
-            double timeSinceLastPrint = tick();
             int totalFrames = 0;
-            double totalDelay = 0;
-            double recentDelay = 0;
             long[] trackProgress = new long[MIDIData.synthEvents.Count];
             bool[] trackFinished = new bool[MIDIData.synthEvents.Count];
             bool[] skip = new bool[MIDIData.synthEvents.Count];
@@ -45,82 +36,86 @@ namespace SharpMIDI
                     {
                         while (true)
                         {
-                            clock = (long)MIDIClock.GetTick();
-                            if (tick() - timeSinceLastPrint >= 0.01d)
+                            long newClock = (long)MIDIClock.GetTick();
+                            if (watch.ElapsedTicks > 333333)
                             {
-                                FPS = Math.Round(1 / ((double)(totalDelay / TimeSpan.TicksPerSecond) / (double)totalFrames), 5);
+                                FPS = Math.Round(1 / (((double)watch.ElapsedTicks / (double)TimeSpan.TicksPerSecond) / (double)totalFrames), 5);
                                 curTick = clock;
-                                TPS = Math.Round(1 / MIDIClock.ticklen, 5);
-                                timeSinceLastPrint = tick();
                                 totalFrames = 0;
-                                totalDelay = 0;
+                                watch.Restart();
                             }
-                            long watchtime = watch.ElapsedTicks;
-                            watch.Stop();
-                            watch = System.Diagnostics.Stopwatch.StartNew();
-                            double delay = (double)watchtime / TimeSpan.TicksPerSecond;
-                            totalDelay += watchtime;
-                            recentDelay = watchtime;
                             int evs = 0;
                             int loops = -1;
-                            while (true)
+                            if (newClock != clock)
                             {
-                                if (tempoProgress < MIDIData.tempos.Count)
+                                clock = newClock;
+                                while (true)
                                 {
-                                    Tempo ev = MIDIData.tempos[tempoProgress];
-                                    evs++;
-                                    if (ev.pos <= clock)
+                                    if (tempoProgress < MIDIData.tempos.Count)
                                     {
-                                        MIDIClock.SubmitBPM(ev.pos, ev.tempo);
-                                        bpm = 60000000 / (double)ev.tempo;
-                                        tempoProgress++;
+                                        Tempo ev = MIDIData.tempos[tempoProgress];
+                                        evs++;
+                                        if (ev.pos <= clock)
+                                        {
+                                            MIDIClock.SubmitBPM(ev.pos, ev.tempo);
+                                            TPS = Math.Round(1 / MIDIClock.ticklen, 5);
+                                            tempoProgress++;
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
                                     }
                                     else
                                     {
                                         break;
                                     }
                                 }
-                                else
+                                foreach (IEnumerator<SynthEvent> i in enums)
                                 {
-                                    break;
-                                }
-                            }
-                            foreach (IEnumerator<SynthEvent> i in enums)
-                            {
-                                loops++;
-                                if (!tF[loops])
-                                {
-                                    evs++;
-                                    while (true)
+                                    loops++;
+                                    if (!tF[loops])
                                     {
-                                        if (!s[loops])
+                                        evs++;
+                                        while (true)
                                         {
-                                            if (!i.MoveNext())
+                                            if (!s[loops])
                                             {
-                                                tF[loops] = true;
+                                                if (!i.MoveNext())
+                                                {
+                                                    tF[loops] = true;
+                                                    break;
+                                                }
+                                            }
+                                            if (i.Current.pos + tP[loops] <= clock)
+                                            {
+                                                tP[loops] += i.Current.pos;
+                                                s[loops] = false;
+                                                Sound.Submit(i.Current.val);
+                                            }
+                                            else
+                                            {
+                                                s[loops] = true;
                                                 break;
                                             }
                                         }
-                                        if (i.Current.pos+tP[loops] <= clock)
-                                        {
-                                            tP[loops] += i.Current.pos;
-                                            s[loops] = false;
-                                            Sound.Submit(i.Current.val);
-                                        }
-                                        else
-                                        {
-                                            s[loops] = true;
-                                            break;
-                                        }
                                     }
                                 }
+                            } else
+                            {
+                                evs++;
+                                totalFrames++;
+                                if (limitFPS)
+                                {
+                                    Thread.Sleep(1);
+                                }
                             }
-                            totalFrames++;
                             if (evs == 0 || stopping)
                             {
                                 if (stopping)
                                     Sound.Reload();
                                 playing = false;
+                                MIDIClock.Stop();
                                 Console.WriteLine("Playback finished...");
                                 break;
                             }
