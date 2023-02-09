@@ -10,15 +10,17 @@ namespace SharpMIDI
         public static bool MIDILoading = false;
         public static string LoadStatus = "Begin loading...";
         public static float LoadProgress = 0f;
-        public static void OpenDialog()
+        public static DialogResult OpenDialog()
         {
             ofd.Filter = "MIDI file (*.mid)|*.mid|7-Zip Archive (*.7z)|*.7z|gzip Archive (*.gz)|*.gz|rar Archive (*.rar)|*.rar|tar Archive (*.tar)|*.tar|xz Archive (*.xz)|*.xz|zip Archive (*.zip)|*.zip";
             ofd.FilterIndex = 1;
             ofd.RestoreDirectory = true;
-            if (ofd.ShowDialog() == DialogResult.OK)
+            DialogResult test = ofd.ShowDialog();
+            if (test == DialogResult.OK)
             {
                 path = ofd.FileName;
             }
+            return test;
         }
         public static async void StartLoading()
         {
