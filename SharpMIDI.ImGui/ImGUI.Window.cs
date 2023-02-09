@@ -43,6 +43,8 @@ namespace SharpMIDI
             _controller.WindowResized(ClientSize.X, ClientSize.Y);
         }
 
+        static LangObj langObj = Lang.GetLang("English");
+
         static List<string> winMMDevices = WinMM.GetDevices();
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -57,28 +59,30 @@ namespace SharpMIDI
             //ImGui.ShowDemoWindow();
             if (ImGui.BeginMainMenuBar())
             {
-                if (ImGui.BeginMenu("File"))
+                if (ImGui.BeginMenu(langObj.Menus[0]))
                 {
-                    if (ImGui.MenuItem("Open MIDI",!TopLoader.MIDILoaded))
+                    if (ImGui.MenuItem(langObj.Menus[1], !TopLoader.MIDILoaded))
                     {
-                        TopLoader.OpenDialog();
-                        Task.Run(() => TopLoader.StartLoading());
+                        if (TopLoader.OpenDialog() == DialogResult.OK)
+                        {
+                            Task.Run(() => TopLoader.StartLoading());
+                        }
                     }
-                    if (ImGui.MenuItem("Unload MIDI", TopLoader.MIDILoaded))
+                    if (ImGui.MenuItem(langObj.Menus[2], TopLoader.MIDILoaded))
                     {
-                        MessageBox.Show("Not implemented");
+                        MessageBox.Show(langObj.Menus[3]);
                     }
                     ImGui.EndMenu();
                 }
-                if (ImGui.BeginMenu("Options"))
+                if (ImGui.BeginMenu(langObj.Menus[4]))
                 {
-                    if (ImGui.BeginMenu("Synth", !Sound.synthLoaded))
+                    if (ImGui.BeginMenu(langObj.Menus[5], !Sound.synthLoaded))
                     {
-                        if (ImGui.MenuItem("Load KDMAPI"))
+                        if (ImGui.MenuItem(langObj.Menus[6]))
                         {
                             Sound.Init(1, "");
                         }
-                        if (ImGui.BeginMenu("Load WinMM"))
+                        if (ImGui.BeginMenu(langObj.Menus[7]))
                         {
                             foreach (string i in winMMDevices)
                             {
@@ -89,27 +93,40 @@ namespace SharpMIDI
                             }
                             ImGui.EndMenu();
                         }
-                        if (ImGui.MenuItem("Load XSynth"))
+                        if (ImGui.MenuItem(langObj.Menus[8]))
                         {
                             Sound.Init(3, "");
                         }
                         ImGui.EndMenu();
                     }
-                    if (ImGui.MenuItem("Unload Synth",Sound.synthLoaded&&!MIDIClock.test.IsRunning&&!MIDIPlayer.playing))
+                    if (ImGui.MenuItem(langObj.Menus[9], Sound.synthLoaded&&!MIDIClock.test.IsRunning&&!MIDIPlayer.playing))
                     {
                         Sound.Close();
                     }
-                    if (ImGui.MenuItem("Reload Synth",Sound.synthLoaded&&!MIDIClock.test.IsRunning&&!MIDIPlayer.playing))
+                    if (ImGui.MenuItem(langObj.Menus[10], Sound.synthLoaded&&!MIDIClock.test.IsRunning&&!MIDIPlayer.playing))
                     {
                         Sound.Reload();
                     }
+                    ImGui.Checkbox(langObj.Menus[11], ref MIDIPlayer.limitFPS);
                     ImGui.EndMenu();
                 }
-                if (ImGui.BeginMenu("Help"))
+                if (ImGui.BeginMenu(langObj.Menus[14]))
                 {
-                    if (ImGui.MenuItem("XSynth DLL"))
+                    if (ImGui.MenuItem("English"))
                     {
-                        MessageBox.Show("Trying to make XSynth work? Make sure your DLL is named XSynth.dll and placed in either the program directory or the Windows folder.");
+                        langObj = Lang.GetLang("English");
+                    }
+                    if (ImGui.MenuItem("Svenska"))
+                    {
+                        langObj = Lang.GetLang("Swedish");
+                    }
+                    ImGui.EndMenu();
+                }
+                if (ImGui.BeginMenu(langObj.Menus[12]))
+                {
+                    if (ImGui.MenuItem(langObj.Menus[13]))
+                    {
+                        
                     }
                     ImGui.EndMenu();
                 }
@@ -122,57 +139,58 @@ namespace SharpMIDI
                 switch (Sound.engine)
                 {
                     case 0:
-                        ImGui.Text("Loaded Synth: None");
+                        ImGui.Text(langObj.Other[0]+": None");
                         break;
                     case 1:
-                        ImGui.Text("Loaded Synth: KDMAPI");
+                        ImGui.Text(langObj.Other[0] + ": KDMAPI");
                         break;
                     case 2:
-                        ImGui.Text("Loaded Synth: WinMM (" + Sound.lastWinMMDevice + ")");
+                        ImGui.Text(langObj.Other[0] + ": WinMM (" + Sound.lastWinMMDevice + ")");
                         break;
                     case 3:
-                        ImGui.Text("Loaded Synth: XSynth");
+                        ImGui.Text(langObj.Other[0] + ": XSynth");
                         break;
                 }
                 if (TopLoader.path == "")
                 {
-                    ImGui.Text("\nLoaded MIDI: None");
+                    ImGui.Text("\n" + langObj.Other[1] +": None");
                 }
                 else
                 {
-                    ImGui.Text("\nLoaded MIDI: " + Path.GetFileName(TopLoader.path));
+                    ImGui.Text("\n" + langObj.Other[1] + ": " + Path.GetFileName(TopLoader.path));
                 }
                 if (TopLoader.MIDILoading)
                 {
-                    ImGui.Text("Status: Loading");
+                    ImGui.Text(langObj.Other[2]);
                 }
                 else if (!TopLoader.MIDILoaded)
                 {
-                    ImGui.Text("Status: Idle");
+                    ImGui.Text(langObj.Other[3]);
                 }
                 else
                 {
-                    ImGui.Text("Status: Loaded");
+                    ImGui.Text(langObj.Other[4]);
                 }
                 if (TopLoader.MIDILoaded)
                 {
-                    ImGui.Text("Memory Usage: " + (GC.GetTotalMemory(false) / 1000000) + " MB");
+                    ImGui.Text(langObj.Other[5]+": " + (GC.GetTotalMemory(false) / 1000000) + " MB");
                 }
-                ImGui.Text("Notes: " + MIDIData.notes + " / " + MIDIData.maxNotes);
-                ImGui.Text("PPQ: " + MIDIData.ppq);
-                ImGui.Text("Tracks: " + MIDIData.realTracks);
-                ImGui.Text("\nAvg FPS: "+MIDIPlayer.FPS);
-                ImGui.Text("Played events: "+Sound.totalEvents+" / "+MIDIData.events);
-                ImGui.Text("Tick: "+MIDIPlayer.curTick+" / "+MIDIData.maxTick);
-                ImGui.Text("TPS: "+MIDIPlayer.TPS);
-                ImGui.Text("BPM: "+MIDIClock.bpm+"");
+                ImGui.Text(langObj.Other[6]+": " + MIDIData.notes + " / " + MIDIData.maxNotes);
+                ImGui.Text(langObj.Other[7] + ": " + MIDIData.ppq);
+                ImGui.Text(langObj.Other[8] + ": " + MIDIData.realTracks);
+                ImGui.Text("\n"+ langObj.Other[9] + ": "+MIDIPlayer.FPS);
+                ImGui.Text(langObj.Other[10] + ": " + Sound.totalEvents+" / "+MIDIData.events);
+                ImGui.Text(langObj.Other[11] + ": " + MIDIPlayer.curTick+" / "+MIDIData.maxTick);
+                ImGui.Text(langObj.Other[12] + ": " + MIDIPlayer.TPS);
+                ImGui.Text(langObj.Other[13] + ": " + MIDIClock.bpm+"");
                 bool endDisable = false;
+                ImGui.SliderFloat(langObj.Other[20], ref MIDIClock.speed,0.5f, 2f);
                 if (MIDIPlayer.playing || !TopLoader.MIDILoaded)
                 {
                     ImGui.BeginDisabled();
                     endDisable = true;
                 }
-                if (ImGui.Button("Run"))
+                if (ImGui.Button(langObj.Other[14]))
                 {
                     if (Sound.engine != 0)
                     {
@@ -181,17 +199,17 @@ namespace SharpMIDI
                         Task.Run(() => MIDIPlayer.StartPlayback());
                     } else
                     {
-                        MessageBox.Show("Please select a synth in Options -> Synth before starting!");
+                        MessageBox.Show(langObj.Other[15]);
                     }
                 }
                 if (endDisable)
                 {
                     ImGui.EndDisabled();
                 }
-                string name = "Pause";
+                string name = langObj.Other[16];
                 if (!MIDIClock.test.IsRunning && MIDIPlayer.playing)
                 {
-                    name = "Play";
+                    name = langObj.Other[17];
                 }
                 bool endDisable3 = false;
                 if (MIDIPlayer.stopping || !TopLoader.MIDILoaded)
@@ -219,7 +237,7 @@ namespace SharpMIDI
                     ImGui.BeginDisabled();
                     endDisable2 = true;
                 }
-                if (ImGui.Button("Stop"))
+                if (ImGui.Button(langObj.Other[18]))
                 {
                     MIDIPlayer.stopping = true;
                 }
@@ -233,11 +251,11 @@ namespace SharpMIDI
             {
                 ImGui.SetNextWindowPos(new System.Numerics.Vector2(120, 140));
                 ImGui.SetNextWindowSize(new System.Numerics.Vector2(400, 200));
-                if (ImGui.Begin("MIDI Loading...",ImGuiWindowFlags.NoResize|ImGuiWindowFlags.NoCollapse|ImGuiWindowFlags.NoMove))
+                if (ImGui.Begin(langObj.Other[19], ImGuiWindowFlags.NoResize|ImGuiWindowFlags.NoCollapse|ImGuiWindowFlags.NoMove))
                 {
                     ImGui.Text(TopLoader.LoadStatus);
                     ImGui.ProgressBar(TopLoader.LoadProgress,new System.Numerics.Vector2(385f,0f));
-                    ImGui.Text("Memory Usage: "+(GC.GetTotalMemory(false)/1000000)+" MB");
+                    ImGui.Text(langObj.Other[5]+": " +(GC.GetTotalMemory(false)/1000000)+" MB");
                     ImGui.End();
                 }
             }
