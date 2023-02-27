@@ -40,17 +40,11 @@ namespace SharpMIDI
                 skippedNotes.Add(new int[256]);
             }
             byte prevEvent = 0;
-            long removedOffset = 0;
             while (true)
             {
                 try
                 {
-                    long pos = ReadVariableLen();
-                    if(pos+removedOffset > 4294967295)
-                    {
-                        throw new Exception("uint overflow");
-                    }
-                    trackTime += pos;
+                    trackTime += ReadVariableLen();
                     byte readEvent = br.ReadFast();
                     if (readEvent < 0x80)
                     {
@@ -74,16 +68,14 @@ namespace SharpMIDI
                                         notes++;
                                         events.Add(new SynthEvent()
                                         {
-                                            pos = (uint)(pos+removedOffset),
+                                            pos = trackTime,
                                             val = (uint)(readEvent | (note << 8) | (vel << 16))
                                         });
                                         evs++;
-                                        removedOffset = 0;
                                     }
                                     else
                                     {
                                         skippedNotes[ch][note]++;
-                                        removedOffset += pos;
                                     }
                                 }
                                 else
@@ -92,16 +84,14 @@ namespace SharpMIDI
                                     {
                                         events.Add(new SynthEvent()
                                         {
-                                            pos = (uint)(pos + removedOffset),
+                                            pos = trackTime,
                                             val = (uint)(readEvent | (note << 8) | (vel << 16))
                                         });
                                         evs++;
-                                        removedOffset = 0;
                                     }
                                     else
                                     {
                                         skippedNotes[ch][note]--;
-                                        removedOffset += pos;
                                     }
                                 }
                             }
@@ -115,15 +105,13 @@ namespace SharpMIDI
                                 {
                                     events.Add(new SynthEvent()
                                     {
-                                        pos = (uint)(pos + removedOffset),
+                                        pos = trackTime,
                                         val = (uint)(readEvent | (note << 8) | (vel << 16))
                                     });
                                     evs++;
-                                    removedOffset = 0;
                                 } else
                                 {
                                     skippedNotes[ch][note]--;
-                                    removedOffset += pos;
                                 }
                             }
                             break;
@@ -133,11 +121,10 @@ namespace SharpMIDI
                                 byte vel = br.Read();
                                 events.Add(new SynthEvent()
                                 {
-                                    pos = (uint)(pos + removedOffset),
+                                    pos = trackTime,
                                     val = (uint)(readEvent | (note << 8) | (vel << 16))
                                 });
                                 evs++;
-                                removedOffset = 0;
                             }
                             break;
                         case 0b11000000:
@@ -145,11 +132,10 @@ namespace SharpMIDI
                                 byte program = br.Read();
                                 events.Add(new SynthEvent()
                                 {
-                                    pos = (uint)(pos + removedOffset),
+                                    pos = trackTime,
                                     val = (uint)(readEvent | (program << 8))
                                 });
                                 evs++;
-                                removedOffset = 0;
                             }
                             break;
                         case 0b11010000:
@@ -157,11 +143,10 @@ namespace SharpMIDI
                                 byte pressure = br.Read();
                                 events.Add(new SynthEvent()
                                 {
-                                    pos = (uint)(pos + removedOffset),
+                                    pos = trackTime,
                                     val = (uint)(readEvent | (pressure << 8))
                                 });
                                 evs++;
-                                removedOffset = 0;
                             }
                             break;
                         case 0b11100000:
@@ -170,11 +155,10 @@ namespace SharpMIDI
                                 byte m = br.Read();
                                 events.Add(new SynthEvent()
                                 {
-                                    pos = (uint)(pos + removedOffset),
+                                    pos = trackTime,
                                     val = (uint)(readEvent | (l << 8) | (m << 16))
                                 });
                                 evs++;
-                                removedOffset = 0;
                             }
                             break;
                         case 0b10110000:
@@ -183,15 +167,13 @@ namespace SharpMIDI
                                 byte vv = br.Read();
                                 events.Add(new SynthEvent()
                                 {
-                                    pos = (uint)(pos + removedOffset),
+                                    pos = trackTime,
                                     val = (uint)(readEvent | (cc << 8) | (vv << 16))
                                 });
                                 evs++;
-                                removedOffset = 0;
                             }
                             break;
                         default:
-                            removedOffset += pos;
                             switch (readEvent)
                             {
                                 case 0b11110000:
