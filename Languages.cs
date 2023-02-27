@@ -40,10 +40,16 @@ namespace SharpMIDI
             "Load XSynth",
             "Unload Synth",
             "Reload Synth",
-            "Limit FPS",
+            "Limit UPS",
             "Misc",
             "(placeholder)",
-            "Language"
+            "Language",
+            "Playback",
+            "Slow down during lag",
+            "UPS Limit",
+            "Accurate Limit",
+            "Loading",
+            "Velocity threshold"
         };
         public static List<string> Other = new List<string>()
         {
@@ -56,7 +62,7 @@ namespace SharpMIDI
             "Notes",
             "PPQ",
             "Tracks",
-            "Average FPS",
+            "Average UPS",
             "Played events",
             "Tick",
             "TPS",
@@ -75,20 +81,26 @@ namespace SharpMIDI
         public static List<string> Menus = new List<string>()
         {
             "Fil",
-            "÷ppna MIDI",
+            "√ñppna MIDI",
             "Ladda ur MIDI",
             "Ej implementerat",
-            "Inst‰llningar",
+            "Inst√§llningar",
             "Synth",
             "Ladda KDMAPI",
             "Ladda WinMM",
             "Ladda XSynth",
             "Ladda ur Synth",
             "Ladda om Synth",
-            "Begr‰nsa FPS",
+            "Begr√§nsa UPS",
             "Misc",
-            "(platshÂllare)",
-            "SprÂk"
+            "(platsh√•llare)",
+            "Spr√•k",
+            "Uppspelning",
+            "Sakta ner under f√∂rdr√∂jning",
+            "UPS gr√§ns",
+            "Exakt gr√§ns",
+            "Laddande",
+            "Volymtr√∂skel"
         };
         public static List<string> Other = new List<string>()
         {
@@ -97,17 +109,17 @@ namespace SharpMIDI
             "Status: Laddar",
             "Status: Inaktiv",
             "Status: Laddad",
-            "Minnesanv‰ndning",
+            "Minnesanv√§ndning",
             "Noter",
             "PPQ",
-            "SpÂr",
-            "Genomsnittlig FPS",
-            "Spelade h‰ndelser",
+            "Sp√•r",
+            "Genomsnittlig UPS",
+            "Spelade h√§ndelser",
             "Tick",
             "TPS",
             "BPM",
             "Starta",
-            "Sn‰lla v‰lj en synth i Inst‰llningar -> Synth innan du startar!",
+            "Sn√§lla v√§lj en synth i Inst√§llningar -> Synth innan du startar!",
             "Pausa",
             "Spela",
             "Stoppa",
