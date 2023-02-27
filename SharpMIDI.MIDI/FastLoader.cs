@@ -45,10 +45,10 @@ namespace SharpMIDI
                         bufSize = (int)trackSizes[(int)i];
                     }
                     totalSize += trackSizes[(int)i];
-                    Console.WriteLine("Track " + (i + 1) + " | Size " + trackSizes[(int)i]);
+                    Console.Write("\nTrack " + (i + 1) + " | Size " + trackSizes[(int)i]);
                     loadedSize += trackSizes[(int)i];
                     FastTrack temp = new FastTrack(new BufferByteReader(ms, bufSize, trackPositions[(int)i], trackSizes[(int)i]));
-                    temp.ParseTrack(10,i);
+                    temp.ParseTrack(Window.threshold,i);
                     MIDIData.notes += temp.notes;
                     MIDIData.maxNotes += temp.maxNotes;
                     MIDIData.events += temp.evs;
@@ -61,6 +61,7 @@ namespace SharpMIDI
                     if (totalSize > 134217728)
                     {
                         totalSize = 0;
+                        Console.Write(" | Calling GC");
                         GC.Collect();
                     }
                 }
