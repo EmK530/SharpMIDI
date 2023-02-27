@@ -19,7 +19,7 @@ namespace SharpMIDI
     public class Window : GameWindow
     {
         ImGuiController _controller;
-
+        public static int threshold = 10;
         public Window() : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = new Vector2i(640,480), APIVersion = new Version(3, 3) })
         { }
 
@@ -76,13 +76,13 @@ namespace SharpMIDI
                 }
                 if (ImGui.BeginMenu(langObj.Menus[4]))
                 {
-                    if (ImGui.BeginMenu(langObj.Menus[5], !Sound.synthLoaded))
+                    if (ImGui.BeginMenu(langObj.Menus[5]))
                     {
-                        if (ImGui.MenuItem(langObj.Menus[6]))
+                        if (ImGui.MenuItem(langObj.Menus[6], !Sound.synthLoaded))
                         {
                             Sound.Init(1, "");
                         }
-                        if (ImGui.BeginMenu(langObj.Menus[7]))
+                        if (ImGui.BeginMenu(langObj.Menus[7], !Sound.synthLoaded))
                         {
                             foreach (string i in winMMDevices)
                             {
@@ -93,21 +93,37 @@ namespace SharpMIDI
                             }
                             ImGui.EndMenu();
                         }
-                        if (ImGui.MenuItem(langObj.Menus[8]))
+                        if (ImGui.MenuItem(langObj.Menus[8], !Sound.synthLoaded))
                         {
                             Sound.Init(3, "");
                         }
+                        if (ImGui.MenuItem(langObj.Menus[9], Sound.synthLoaded && !MIDIClock.test.IsRunning && !MIDIPlayer.playing))
+                        {
+                            Sound.Close();
+                        }
+                        if (ImGui.MenuItem(langObj.Menus[10], Sound.synthLoaded && !MIDIClock.test.IsRunning && !MIDIPlayer.playing))
+                        {
+                            Sound.Reload();
+                        }
                         ImGui.EndMenu();
                     }
-                    if (ImGui.MenuItem(langObj.Menus[9], Sound.synthLoaded&&!MIDIClock.test.IsRunning&&!MIDIPlayer.playing))
+                    if (ImGui.BeginMenu(langObj.Menus[19]))
                     {
-                        Sound.Close();
+                        ImGui.SliderInt(langObj.Menus[20], ref threshold, 0, 127);
+                        ImGui.EndMenu();
                     }
-                    if (ImGui.MenuItem(langObj.Menus[10], Sound.synthLoaded&&!MIDIClock.test.IsRunning&&!MIDIPlayer.playing))
+                    if (ImGui.BeginMenu(langObj.Menus[15]))
                     {
-                        Sound.Reload();
+                        ImGui.Checkbox(langObj.Menus[11], ref MIDIPlayer.limitFPS);
+                        ImGui.Checkbox(langObj.Menus[18], ref MIDIPlayer.accurateLimit);
+                        ImGui.InputInt(langObj.Menus[17], ref MIDIPlayer.targetFPS);
+                        if(MIDIPlayer.targetFPS <= 0)
+                        {
+                            MIDIPlayer.targetFPS = 1;
+                        }
+                        ImGui.Checkbox(langObj.Menus[16], ref MIDIClock.throttle);
+                        ImGui.EndMenu();
                     }
-                    ImGui.Checkbox(langObj.Menus[11], ref MIDIPlayer.limitFPS);
                     ImGui.EndMenu();
                 }
                 if (ImGui.BeginMenu(langObj.Menus[14]))
@@ -134,7 +150,7 @@ namespace SharpMIDI
             }
             ImGui.SetNextWindowPos(new System.Numerics.Vector2(0,18));
             ImGui.SetNextWindowSize(new System.Numerics.Vector2(this.Size.X, this.Size.Y-18));
-            if (ImGui.Begin("StatsWindow", ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoResize))
+            if (ImGui.Begin("StatsWindow", ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoNavFocus))
             {
                 switch (Sound.engine)
                 {
