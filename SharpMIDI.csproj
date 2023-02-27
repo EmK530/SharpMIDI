@@ -1,17 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-	  <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-      <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
 	  <OutputType>Exe</OutputType>
 	  <RootNamespace>SharpMIDI</RootNamespace>
 	  <AssemblyName>SharpMIDI</AssemblyName>
 	  <FileAlignment>512</FileAlignment>
-      <TargetFramework>net6.0-windows</TargetFramework>
+      	  <TargetFramework>net6.0-windows</TargetFramework>
 	  <UseWindowsForms>true</UseWindowsForms>
-      <ImplicitUsings>enable</ImplicitUsings>
-      <Nullable>enable</Nullable>
+          <ImplicitUsings>enable</ImplicitUsings>
+          <Nullable>enable</Nullable>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	  <Optimize>false</Optimize>
+	  <Optimize>true</Optimize>
 	  <RemoveIntegerChecks>true</RemoveIntegerChecks>
 	  <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
 	  <StartupObject>SharpMIDI.Starter</StartupObject>
