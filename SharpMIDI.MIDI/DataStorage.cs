@@ -7,7 +7,7 @@ namespace SharpMIDI
     }
     public struct SynthEvent
     {
-        public uint pos;
+        public float pos;
         public uint val;
     }
     class MIDIData
