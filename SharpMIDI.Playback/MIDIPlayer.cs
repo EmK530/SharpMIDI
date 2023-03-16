@@ -22,13 +22,12 @@ namespace SharpMIDI
             MIDIClock.Reset();
             Sound.totalEvents = 0;
             MIDIClock.Start();
-            uint[] diff = new uint[MIDIData.synthEvents.Count];
-            List<IEnumerator<SynthEvent>> enums = new List<IEnumerator<SynthEvent>>();
-            foreach (List<SynthEvent> i in MIDIData.synthEvents)
+            IEnumerator<SynthEvent>[] enums = new IEnumerator<SynthEvent>[MIDIData.synthEvents.Count];
+            for(int i = 0; i < MIDIData.synthEvents.Count; i++)
             {
-                IEnumerator<SynthEvent> temp = i.GetEnumerator();
-                enums.Add(temp);
+                enums[i] = MIDIData.synthEvents[i].GetEnumerator();
             }
+            int evs = enums.Length;
             fixed (bool* tF = trackFinished)
             {
                 while (true)
@@ -56,8 +55,6 @@ namespace SharpMIDI
                         totalFrames = 0;
                         watch.Restart();
                     }
-                    int evs = 0;
-                    int loops = -1;
                     totalFrames++;
                     if (newClock != clock)
                     {
@@ -84,46 +81,24 @@ namespace SharpMIDI
                                 break;
                             }
                         }
-                        foreach (IEnumerator<SynthEvent> i in enums)
+                        for (int i = 0; i < enums.Length; i++)
                         {
-                            loops++;
-                            if (!tF[loops])
+                            IEnumerator<SynthEvent> enumerator = enums[i];
+                            if (!tF[i])
                             {
                                 evs++;
-                                if (i.Current.pos <= clock)
+                                while (enumerator.Current.pos <= clock)
                                 {
-                                    Sound.Submit(i.Current.val);
-                                    while (true)
+                                    Sound.Submit((uint)(enumerator.Current.val&0xFFFFFF));
+                                    if (!enumerator.MoveNext())
                                     {
-                                        if (i.MoveNext())
-                                        {
-                                            if (i.Current.pos <= clock)
-                                            {
-                                                Sound.Submit(i.Current.val);
-                                            }
-                                            else
-                                            {
-                                                break;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            tF[loops] = true;
-                                            break;
-                                        }
+                                        tF[i] = true;
+                                        evs--;
+                                        break;
                                     }
                                 }
                             }
                         }
-                    } else
-                    {
-                        evs++;
-                        /*
-                        if (limitFPS)
-                        {
-                            Thread.Sleep(1);
-                        }
-                        */
                     }
                     if (evs == 0 || stopping)
                     {
