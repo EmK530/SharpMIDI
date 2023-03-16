@@ -100,7 +100,7 @@ namespace SharpMIDI
                     }
                     if (ImGui.BeginMenu(langObj.Menus[19]))
                     {
-                        ImGui.InputInt(langObj.Menus[20], ref threshold, 0, 127);
+                        ImGui.SliderInt(langObj.Menus[20], ref threshold, 0, 127);
                         ImGui.SliderInt(langObj.Menus[21], ref buffersize, 8192, 2147483647);
                         ImGui.EndMenu();
                     }
