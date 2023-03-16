@@ -49,7 +49,8 @@ namespace SharpMIDI
             "UPS Limit",
             "Accurate Limit",
             "Loading",
-            "Velocity threshold"
+            "Velocity threshold",
+            "Buffer size"
         };
         public static List<string> Other = new List<string>()
         {
@@ -100,7 +101,8 @@ namespace SharpMIDI
             "UPS gräns",
             "Exakt gräns",
             "Laddande",
-            "Volymtröskel"
+            "Volymtröskel",
+            "Buffertstorlek"
         };
         public static List<string> Other = new List<string>()
         {
