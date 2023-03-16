@@ -2,7 +2,7 @@ namespace SharpMIDI
 {
     public static class Starter
     {
-        public static string level = " Beta 4";
+        public static string level = " Beta 5";
         public static string major = "4";
         public static string minor = "0";
         public static string micro = "0";
