@@ -1,18 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ImGuiNET;
-using System.Drawing;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using OpenTK.Graphics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using System.Diagnostics;
-using OpenTK.Platform.Windows;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SharpMIDI
 {
@@ -20,6 +10,7 @@ namespace SharpMIDI
     {
         ImGuiController _controller;
         public static int threshold = 10;
+        public static int buffersize = 536862720;
         public Window() : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = new Vector2i(640,480), APIVersion = new Version(3, 3) })
         { }
 
@@ -109,7 +100,8 @@ namespace SharpMIDI
                     }
                     if (ImGui.BeginMenu(langObj.Menus[19]))
                     {
-                        ImGui.SliderInt(langObj.Menus[20], ref threshold, 0, 127);
+                        ImGui.InputInt(langObj.Menus[20], ref threshold, 0, 127);
+                        ImGui.SliderInt(langObj.Menus[21], ref buffersize, 8192, 2147483647);
                         ImGui.EndMenu();
                     }
                     if (ImGui.BeginMenu(langObj.Menus[15]))
