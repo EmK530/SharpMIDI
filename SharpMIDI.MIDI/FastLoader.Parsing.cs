@@ -69,7 +69,7 @@ namespace SharpMIDI
                                         events.Add(new SynthEvent()
                                         {
                                             pos = trackTime,
-                                            val = (uint)(readEvent | (note << 8) | (vel << 16))
+                                            val = (Int24)(readEvent | (note << 8) | (vel << 16))
                                         });
                                         evs++;
                                     }
@@ -85,7 +85,7 @@ namespace SharpMIDI
                                         events.Add(new SynthEvent()
                                         {
                                             pos = trackTime,
-                                            val = (uint)(readEvent | (note << 8) | (vel << 16))
+                                            val = (Int24)(readEvent | (note << 8) | (vel << 16))
                                         });
                                         evs++;
                                     }
@@ -106,7 +106,7 @@ namespace SharpMIDI
                                     events.Add(new SynthEvent()
                                     {
                                         pos = trackTime,
-                                        val = (uint)(readEvent | (note << 8) | (vel << 16))
+                                        val = (Int24)(readEvent | (note << 8) | (vel << 16))
                                     });
                                     evs++;
                                 } else
@@ -122,7 +122,7 @@ namespace SharpMIDI
                                 events.Add(new SynthEvent()
                                 {
                                     pos = trackTime,
-                                    val = (uint)(readEvent | (note << 8) | (vel << 16))
+                                    val = (Int24)(readEvent | (note << 8) | (vel << 16))
                                 });
                                 evs++;
                             }
@@ -133,7 +133,7 @@ namespace SharpMIDI
                                 events.Add(new SynthEvent()
                                 {
                                     pos = trackTime,
-                                    val = (uint)(readEvent | (program << 8))
+                                    val = (Int24)(readEvent | (program << 8))
                                 });
                                 evs++;
                             }
@@ -144,7 +144,7 @@ namespace SharpMIDI
                                 events.Add(new SynthEvent()
                                 {
                                     pos = trackTime,
-                                    val = (uint)(readEvent | (pressure << 8))
+                                    val = (Int24)(readEvent | (pressure << 8))
                                 });
                                 evs++;
                             }
@@ -156,7 +156,7 @@ namespace SharpMIDI
                                 events.Add(new SynthEvent()
                                 {
                                     pos = trackTime,
-                                    val = (uint)(readEvent | (l << 8) | (m << 16))
+                                    val = (Int24)(readEvent | (l << 8) | (m << 16))
                                 });
                                 evs++;
                             }
@@ -168,7 +168,7 @@ namespace SharpMIDI
                                 events.Add(new SynthEvent()
                                 {
                                     pos = trackTime,
-                                    val = (uint)(readEvent | (cc << 8) | (vv << 16))
+                                    val = (Int24)(readEvent | (cc << 8) | (vv << 16))
                                 });
                                 evs++;
                             }
@@ -217,6 +217,7 @@ namespace SharpMIDI
                 }
                 catch (IndexOutOfRangeException)
                 {
+                    events.TrimExcess();
                     break;
                 }
             }
