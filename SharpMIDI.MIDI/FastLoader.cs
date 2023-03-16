@@ -1,6 +1,3 @@
-using System.Drawing;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
-
 namespace SharpMIDI
 {
     class FastLoader
@@ -39,7 +36,7 @@ namespace SharpMIDI
             //for(int i = 0; i < tks; i++)
             {
                 {
-                    int bufSize = 2000000000;
+                    int bufSize = Window.buffersize;
                     if (bufSize > trackSizes[(int)i])
                     {
                         bufSize = (int)trackSizes[(int)i];
