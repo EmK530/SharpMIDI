@@ -1,11 +1,17 @@
 using System.Runtime.InteropServices;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace SharpMIDI
 {
-    public struct Tempo
+    public struct Tempo : IComparable<Tempo>
     {
         public float pos;
         public int tempo;
+
+        public int CompareTo(Tempo other)
+        {
+            return pos.CompareTo(other.pos);
+        }
     }
     public struct SynthEvent
     {
