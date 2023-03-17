@@ -64,7 +64,10 @@ namespace SharpMIDI
                 }
             });
             ms.Close();
+            Console.WriteLine("Calling GC");
             GC.Collect();
+            Console.WriteLine("Sorting tempos");
+            MIDIData.tempos.Sort();
             TopLoader.MIDILoaded = true;
             TopLoader.MIDILoading = false;
         }
