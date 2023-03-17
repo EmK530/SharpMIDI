@@ -34,10 +34,10 @@ namespace SharpMIDI
                 }
                 return val;
             }
-            List<int[]> heldNotes = new List<int[]>();
+            List<int[]> skippedNotes = new List<int[]>();
             for (int i = 0; i < 16; i++)
             {
-                heldNotes.Add(new int[256]);
+                skippedNotes.Add(new int[256]);
             }
             byte prevEvent = 0;
             while (true)
@@ -62,30 +62,36 @@ namespace SharpMIDI
                                 byte vel = br.ReadFast();
                                 if (vel != 0)
                                 {
-                                    unchecked { maxNotes++; };
+                                    maxNotes++;
                                     if (vel >= threshold)
                                     {
-                                        unchecked { notes++; };
+                                        notes++;
                                         events.Add(new SynthEvent()
                                         {
                                             pos = trackTime,
                                             val = (Int24)(readEvent | (note << 8) | (vel << 16))
                                         });
-                                        unchecked { evs++; };
-                                        unchecked { heldNotes[ch][note]++; };
+                                        evs++;
+                                    }
+                                    else
+                                    {
+                                        skippedNotes[ch][note]++;
                                     }
                                 }
                                 else
                                 {
-                                    if (heldNotes[ch][note] != 0)
+                                    if (skippedNotes[ch][note] == 0)
                                     {
                                         events.Add(new SynthEvent()
                                         {
                                             pos = trackTime,
                                             val = (Int24)(readEvent | (note << 8) | (vel << 16))
                                         });
-                                        unchecked { evs++; };
-                                        unchecked { heldNotes[ch][note]--; };
+                                        evs++;
+                                    }
+                                    else
+                                    {
+                                        skippedNotes[ch][note]--;
                                     }
                                 }
                             }
@@ -95,15 +101,17 @@ namespace SharpMIDI
                                 byte ch = (byte)(readEvent & 0b00001111);
                                 byte note = br.Read();
                                 byte vel = br.ReadFast();
-                                if (heldNotes[ch][note] != 0)
+                                if (skippedNotes[ch][note] == 0)
                                 {
                                     events.Add(new SynthEvent()
                                     {
                                         pos = trackTime,
                                         val = (Int24)(readEvent | (note << 8) | (vel << 16))
                                     });
-                                    unchecked { evs++; };
-                                    unchecked { heldNotes[ch][note]--; };
+                                    evs++;
+                                } else
+                                {
+                                    skippedNotes[ch][note]--;
                                 }
                             }
                             break;
@@ -116,7 +124,7 @@ namespace SharpMIDI
                                     pos = trackTime,
                                     val = (Int24)(readEvent | (note << 8) | (vel << 16))
                                 });
-                                unchecked { evs++; };
+                                evs++;
                             }
                             break;
                         case 0b11000000:
@@ -127,7 +135,7 @@ namespace SharpMIDI
                                     pos = trackTime,
                                     val = (Int24)(readEvent | (program << 8))
                                 });
-                                unchecked { evs++; };
+                                evs++;
                             }
                             break;
                         case 0b11010000:
@@ -138,7 +146,7 @@ namespace SharpMIDI
                                     pos = trackTime,
                                     val = (Int24)(readEvent | (pressure << 8))
                                 });
-                                unchecked { evs++; };
+                                evs++;
                             }
                             break;
                         case 0b11100000:
@@ -150,7 +158,7 @@ namespace SharpMIDI
                                     pos = trackTime,
                                     val = (Int24)(readEvent | (l << 8) | (m << 16))
                                 });
-                                unchecked { evs++; };
+                                evs++;
                             }
                             break;
                         case 0b10110000:
@@ -162,7 +170,7 @@ namespace SharpMIDI
                                     pos = trackTime,
                                     val = (Int24)(readEvent | (cc << 8) | (vv << 16))
                                 });
-                                unchecked { evs++; };
+                                evs++;
                             }
                             break;
                         default:
